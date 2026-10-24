@@ -1,6 +1,6 @@
 <!DOCTYPE html><html lang="ja"><head><meta charset="UTF-8">
 <meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
-<title> War　Blizzard Mobile</title>
+<title>Sky Warbirds 3D</title>
 <style>
 :root{--ac:#5ec8ff;--bd:#2a5a7a;--pn:rgba(8,14,22,.8);--fg:#e8f2fa}
 *{box-sizing:border-box;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
@@ -71,7 +71,7 @@ input.sb{user-select:text;-webkit-user-select:text;cursor:text;width:230px;text-
 
 <div id="fs" class="ov"><h1>Sky Warbirds 3D</h1><div id="prof" class="sub" style="font-size:13px"></div>
 <div class="sub">陣営を選んで出撃。オンラインは同じルームコードの人と直接つながります(先に入った人が部屋の主)。</div>
-<div class="row"><button class="sb" onclick="pickF(0)">日米欧連合軍<br>(US / UK / JP / DE)</button><button class="sb" onclick="pickF(1)">中露連合軍<br>(RU)</button></div>
+<div class="row"><button class="sb" onclick="pickF(0)">日米英連合軍<br>(JP / US / UK)</button><button class="sb" onclick="pickF(1)">中露連合軍<br>(CN / RU)</button></div>
 <div class="row"><select id="diff" class="sb"><option value="0">AI難易度: 易</option><option value="1" selected>AI難易度: 普通</option><option value="2">AI難易度: 難</option></select><select id="mode" class="sb"><option value="0" selected>空中戦 (チーム戦・チケット制)</option><option value="1">ドッグファイト (1v1・3撃墜先取)</option></select></div>
 <div class="row"><select id="bf" class="sb"><option value="3">味方BOT: 3</option><option value="0">味方BOT: 0</option><option value="1">味方BOT: 1</option><option value="2">味方BOT: 2</option><option value="4" selected>味方BOT: 4</option><option value="5">味方BOT: 5</option></select><select id="be" class="sb"><option value="5" selected>敵BOT: 5</option><option value="0">敵BOT: 0</option><option value="2">敵BOT: 2</option><option value="3">敵BOT: 3</option><option value="4">敵BOT: 4</option><option value="6">敵BOT: 6</option></select></div>
 <div class="row"><input id="rc" class="sb" placeholder="ルームコード(任意)" maxlength="16" style="width:190px"><button class="sb" id="onb" onclick="toggleOn()">オンライン: OFF</button><button class="sb" id="qmb" onclick="toggleQ()">クイックマッチ: OFF</button></div>
@@ -153,53 +153,109 @@ let AC=null;function ac(){if(!AC){AC=new(window.AudioContext||window.webkitAudio
 function sfx(f,d,v,ty){try{const a=ac(),o=a.createOscillator(),g=a.createGain(),t=a.currentTime;o.type=ty||'sawtooth';o.frequency.setValueAtTime(f,t);o.frequency.exponentialRampToValueAtTime(30,t+d);g.gain.setValueAtTime(v,t);g.gain.exponentialRampToValueAtTime(.001,t+d);o.connect(g);g.connect(a.mg);o.start();o.stop(t+d)}catch(e){}}
 let EN=null;function engSnd(th,spd){try{const a=ac();if(!EN){const o=a.createOscillator(),g=a.createGain(),f=a.createBiquadFilter();o.type='sawtooth';f.type='lowpass';f.frequency.value=380;g.gain.value=0;o.connect(f);f.connect(g);g.connect(a.mg);o.start();EN={o,g}}EN.o.frequency.setTargetAtTime(48+th*70+spd*.1,a.currentTime,.1);EN.g.gain.setTargetAtTime(player&&player.alive?.05:0,a.currentTime,.2)}catch(e){}}
 // ============================ 機体データ ============================
+// ---- 現代機 (日米英 vs 中露 / 各国5機) ----
+// 主翼: W(半スパン,根元翼弦,翼端翼弦,前縁後退角°,根元前縁z,y,厚み,上反角)  尾翼: FN(高さ,根元翼弦,翼端翼弦,前縁後退角°,前縁z,y,x,傾き)
+const W=(h,rc,tc,le,zl,y,th,dih)=>({h,rc,tc,sw:+(h*Math.tan(le*PI/180)+.25*(tc-rc)).toFixed(2),z:zl,y:y||0,dih:dih||0,th:th||.2});
+const FN=(h,rc,tc,le,z,y,x,cant,ex)=>Object.assign({h,rc,tc,sw:+(h*Math.tan(le*PI/180)).toFixed(2),z,y:y||0,x:x||0,cant:cant||0},ex||{});
+const NATN={jp:'日本',us:'米国',uk:'英国',cn:'中国',ru:'ロシア'};
+const AF={
+f22:{prof:[[-9,.55],[-8.2,.9],[-6,1.15],[-3,1.25],[0,1.2],[2.5,1.05],[4.5,.85],[6.5,.6],[8.4,.32],[9.9,.06]],fs:[1.45,.8],
+ wing:W(6.7,9.3,1.7,42,2.2,-.15,.25),hs:W(4.3,3.6,1.2,40,-4.4,.05,.12),fins:[FN(2.7,3.4,1.2,40,-4.7,.45,1.5,.47)],
+ can:{z:5.3,l:3.6,w:.55,h:.5,bub:1},nac:[{x:.95,y:0,z0:-9,z1:-3.5,r:.62,m:1}],inl:[{x:1.6,y:-.1,z:2.9,w:.9,h:1.1,l:3,m:1}],gpH:[[.9,.1,6.4]],ord:[[.9,-.6,2.2,3.4]]},
+f35:{prof:[[-7.2,.6],[-6.4,.82],[-4.5,1],[-2,1.1],[.5,1.1],[3,.98],[5,.78],[6.5,.55],[7.4,.28],[8.4,.06]],fs:[1.25,.88],
+ wing:W(5.3,5.2,1.4,35,1.4,-.2,.22),hs:W(3.2,3.4,1.2,42,-4.6,.05,.12),fins:[FN(2.1,3.2,1.3,35,-3.9,.5,.95,.35)],
+ can:{z:3.6,l:3,w:.55,h:.5,bub:1},inl:[{x:1.15,y:-.3,z:1.8,w:.75,h:.9,l:2.2,m:1}],gpH:[[.7,.1,3.4]],ord:[]},
+f15:{prof:[[-9.5,.7],[-8.4,1],[-6,1.1],[-3,1.15],[0,1],[2.5,.95],[4.5,.85],[6.5,.62],[8.2,.4],[9.9,.06]],fs:[1.25,.85],
+ wing:W(6.5,7,1.8,45,1.5,-.2,.25),hs:W(3.8,3.6,1.2,48,-6.2,.1,.12),fins:[FN(3.2,4,1.6,35,-5.2,.6,1.45,.05)],
+ can:{z:5.8,l:3.6,w:.55,h:.55,bub:1},nac:[{x:1,y:-.1,z0:-9.5,z1:-4,r:.82,m:1}],inl:[{x:1.55,y:-.15,z:3.2,w:1,h:1.5,l:3.2,m:1}],gpH:[[.8,0,6]],ord:[[2.8,-.6,-.5,3.6],[4.2,-.6,-.5,3.6]]},
+f16:{prof:[[-7.3,.62],[-6.4,.8],[-4,.88],[-1,.9],[2,.85],[4.5,.7],[6.2,.5],[7,.3],[7.7,.06]],fs:[1,.95],
+ wing:W(4.7,5,1,40,.2,-.3,.2),hs:W(2.8,2.8,1,50,-5.4,.05,.12),fins:[FN(2.8,3.8,1.2,40,-3.7,.6)],
+ can:{z:4,l:3.2,w:.5,h:.52,bub:1},inl:[{x:0,y:-.85,z:2.6,w:1.5,h:.75,l:2.4}],gpH:[[.5,.2,4.5]],ord:[[3.4,-.6,-.2,3.2],[2.2,-.6,-.2,3.2]]},
+f18:{prof:[[-8.8,.65],[-7.8,.95],[-5,1.05],[-2,1.1],[1,1.05],[3.5,.95],[5.5,.8],[7.5,.55],[8.6,.3],[9.5,.06]],fs:[1.2,.85],
+ wing:W(6.8,5.2,1.5,28,.4,-.25,.23),hs:W(3.3,3.4,1.2,45,-6.2,0,.12),fins:[FN(2.5,3.4,1.2,35,-4.8,.5,.95,.35)],xw:[W(1.9,5.5,.4,70,4.5,-.1,.12)],
+ can:{z:5.4,l:3.3,w:.5,h:.5,bub:1},nac:[{x:.9,y:-.1,z0:-8.8,z1:-3.5,r:.75,m:1}],inl:[{x:1.35,y:-.45,z:2.2,w:.8,h:1.2,l:2.6,m:1}],gpH:[[.35,.05,7]],ord:[[3,-.6,-.3,3.4],[4.6,-.6,-.3,3.4]]},
+a10:{prof:[[-7.4,.55],[-6.2,.75],[-3.5,.8],[-1,.85],[1.5,.9],[3.5,.85],[5.5,.7],[7,.45],[8,.08]],fs:[1,.95],
+ wing:W(8.7,3.8,2.2,3,2,-.25,.35,.04),hs:W(3.4,2.4,1.6,5,-5.5,.45,.14),fins:[FN(2.4,2.4,1.4,15,-5.4,.45,3.2,0)],
+ can:{z:4.6,l:3.2,w:.55,h:.6,bub:1},nac:[{x:1.5,y:.7,z0:-6.8,z1:-1.8,r:.75,m:1,fr:1}],gpH:[[.12,-.35,8]],ord:[[3.5,-.6,.5,3],[5.2,-.6,.5,3],[6.8,-.6,.5,3]]},
+typ:{prof:[[-7.5,.62],[-6.7,.85],[-4.5,.95],[-1.5,1],[1.5,.95],[4,.82],[6,.62],[7.3,.35],[8.4,.06]],fs:[1.1,.9],
+ wing:W(5.4,7.4,1.1,53,.4,-.2,.22),fins:[FN(3.4,4.2,1.4,45,-3.6,.6)],xw:[W(2.2,2.3,.8,50,3.7,.35,.12)],
+ can:{z:4.4,l:3.3,w:.5,h:.55,bub:1},nac:[{x:.55,y:-.2,z0:-7.6,z1:-4,r:.5,m:1}],inl:[{x:0,y:-.85,z:3,w:1.7,h:.75,l:2.8}],gpH:[[.6,-.15,5.3]],ord:[[2,-.6,-.8,3.6],[3.4,-.6,-.8,3.6]]},
+tor:{prof:[[-8,.7],[-7,.9],[-4.5,1],[-1.5,1],[1.5,.95],[4,.8],[6.2,.6],[7.5,.35],[8.7,.06]],fs:[1.1,.9],
+ wing:W(5.4,6.2,2.2,48,1.4,0,.25),hs:W(3,3.2,1.3,50,-5.8,-.1,.12),fins:[FN(3.5,5,1.8,45,-4,.55)],
+ can:{z:4.4,l:3.8,w:.55,h:.5,bub:1},nac:[{x:.6,y:-.1,z0:-8,z1:-4.5,r:.58,m:1}],inl:[{x:1.25,y:-.2,z:1.8,w:.85,h:1,l:2.6,m:1}],gpH:[[.7,-.3,5.8]],ord:[[3,-.6,.2,3.3],[4.3,-.6,.2,3.3]]},
+har:{prof:[[-6,.45],[-5,.7],[-3,.85],[-.5,.95],[2,.95],[4,.8],[5.5,.6],[6.5,.4],[7.1,.08]],fs:[1,.95],
+ wing:W(4.6,4.2,1.6,28,1.9,.45,.22,-.1),hs:W(2.4,2.1,.9,32,-4.6,.5,.1,-.2),fins:[FN(2.2,3,1.3,35,-3.2,.55)],
+ can:{z:3.6,l:2.4,w:.5,h:.55,bub:1},inl:[{x:1,y:-.1,z:2.4,w:.7,h:1.2,l:2.2,m:1}],nd:[{x:1.05,y:-.3,z:-.4,r:.3,m:1},{x:.95,y:-.3,z:-2.5,r:.26,m:1}],gpH:[[.8,-.6,2.5]],ord:[[3,.1,2.2,3]]},
+hawk:{prof:[[-5.6,.4],[-4.8,.6],[-3,.75],[-.5,.8],[1.5,.78],[3.5,.65],[5,.48],[6,.3],[6.8,.06]],fs:[.95,.95],
+ wing:W(4.9,3.4,1.2,25,1.4,-.35,.2),hs:W(2.2,1.9,.8,35,-4.6,.2,.1,-.1),fins:[FN(2.3,2.8,1.2,35,-3.4,.45)],
+ can:{z:3.1,l:3.8,w:.45,h:.55,bub:1},inl:[{x:.95,y:-.1,z:.9,w:.6,h:.8,l:1.8,m:1}],gpH:[[.45,-.5,4.2]],ord:[[2.2,-.55,.6,2.8]]},
+f4:{prof:[[-9,.7],[-8,.95],[-5.5,1],[-2.5,1.05],[.5,1.05],[3.5,.95],[5.5,.85],[7.5,.6],[9,.35],[10.2,.06]],fs:[1.15,.88],
+ wing:W(5.85,7,2.2,50,1.2,-.25,.25,.12),hs:W(3.5,3.4,1.4,45,-7.2,-.45,.14,-.4),fins:[FN(3,5,2,40,-5,.55)],
+ can:{z:4.4,l:4,w:.5,h:.55,bub:1},nac:[{x:.85,y:-.15,z0:-9.2,z1:-4.5,r:.72,m:1}],inl:[{x:1.5,y:-.1,z:1.6,w:1,h:1.5,l:3.2,m:1}],gpH:[[.15,-.55,8.4]],ord:[[3,-.7,.4,3.4],[4.4,-.7,.4,3.4]]},
+j20:{prof:[[-9.5,.7],[-8.5,.95],[-6,1.1],[-3,1.15],[0,1.15],[3,1],[5.5,.85],[7.5,.62],[9,.35],[10.8,.06]],fs:[1.45,.8],
+ wing:W(6.4,8.5,1.4,45,1.2,-.15,.25),fins:[FN(2.1,3.4,1.2,40,-5.5,.35,1.3,.45),FN(1.6,3.5,1.5,40,-6,-.6,1.7,.6,{dn:1,norud:1})],xw:[W(2.9,3.2,1,45,5.4,.1,.13)],
+ can:{z:6,l:4,w:.55,h:.5,bub:1},nac:[{x:.95,y:-.1,z0:-9.6,z1:-4,r:.65,m:1}],inl:[{x:1.35,y:-.5,z:3.3,w:.8,h:1.2,l:2.6,m:1}],gpH:[[.9,0,6.5]],ord:[]},
+j10:{prof:[[-8,.6],[-7,.82],[-4.5,.9],[-1.5,.92],[1.5,.88],[4,.75],[6,.55],[7.2,.32],[8.4,.06]],fs:[1.1,.95],
+ wing:W(4.9,6,.9,42,.3,-.25,.2),fins:[FN(3,4.2,1.4,45,-4.2,.55)],xw:[W(2.2,2.6,.9,50,3.9,.25,.12)],
+ can:{z:4.6,l:3.2,w:.5,h:.55,bub:1},inl:[{x:0,y:-.95,z:3,w:1.5,h:.7,l:2.8}],gpH:[[.5,.1,5.8]],ord:[[3,-.6,-.5,3.4],[4.2,-.6,-.5,3.4]]},
+flk:{prof:[[-10,.7],[-9,.95],[-6,1.1],[-3,1.15],[0,1.1],[3,1],[5.5,.85],[8,.6],[9.8,.35],[11.9,.06]],fs:[1.35,.75],
+ wing:W(7.3,6.8,1.8,42,1,-.2,.25),hs:W(4.8,3.4,1.2,50,-6.8,0,.12),fins:[FN(3.6,4.8,1.8,38,-6.4,.5,2.3,0)],xw:[W(1.9,6,.3,70,4.8,-.1,.12)],
+ can:{z:6.5,l:4.2,w:.6,h:.6,bub:1},nac:[{x:1.55,y:-.1,z0:-10,z1:-4,r:.85,m:1}],inl:[{x:1.5,y:-.7,z:3,w:1.5,h:1.1,l:3.8,m:1}],gpH:[[.9,0,7]],ord:[[3.2,-.6,-1,3.6],[4.8,-.6,-1,3.6],[6.2,-.6,-1,3.6]]},
+j35:{prof:[[-8,.6],[-7.2,.85],[-5,1.05],[-2,1.1],[1,1.05],[3.5,.9],[5.5,.72],[7.2,.45],[8.8,.06]],fs:[1.35,.85],
+ wing:W(5.75,6.2,1.5,40,1.4,-.2,.22),hs:W(3.2,3.4,1.2,45,-5.2,0,.12),fins:[FN(2.4,3.4,1.2,38,-5.2,.5,1.2,.43)],
+ can:{z:4.4,l:3.2,w:.55,h:.5,bub:1},nac:[{x:.8,y:-.1,z0:-8,z1:-4,r:.6,m:1}],inl:[{x:1.3,y:-.35,z:2.4,w:.8,h:1,l:2.4,m:1}],gpH:[[.7,.1,5.8]],ord:[]},
+jh7:{prof:[[-10.5,.8],[-9.4,1],[-6,1.1],[-3,1.1],[0,1.05],[3,1],[6,.85],[8.5,.6],[10.3,.35],[11.8,.06]],fs:[1.15,.9],
+ wing:W(6.3,6.6,2,45,1.2,0,.25),hs:W(3.6,3.4,1.2,52,-7.6,-.1,.12,-.1),fins:[FN(3.8,5.5,2,40,-5.2,.6)],
+ can:{z:5.6,l:4,w:.55,h:.5,bub:1},nac:[{x:.7,y:-.1,z0:-10.5,z1:-6,r:.62,m:1}],inl:[{x:1.5,y:-.2,z:2,w:.9,h:1.1,l:3,m:1}],gpH:[[.7,-.3,7.5]],ord:[[3,-.6,.4,3.4],[4.5,-.6,.4,3.4]]},
+s57:{prof:[[-9,.7],[-8,.95],[-5.5,1.1],[-2.5,1.15],[1,1.1],[3.8,.95],[6,.8],[8,.55],[9.4,.3],[11.1,.06]],fs:[1.45,.8],
+ wing:W(7,8,1.6,48,1.8,-.2,.25),hs:W(3.8,3.4,1.3,50,-6.6,0,.12),fins:[FN(2.4,3.6,1.5,38,-6.2,.4,2,.45)],xw:[W(1.7,3.2,.5,55,5.4,0,.1)],
+ can:{z:6.2,l:3.8,w:.55,h:.5,bub:1},nac:[{x:1.3,y:-.1,z0:-9,z1:-4,r:.78,m:1}],inl:[{x:1.4,y:-.55,z:2.6,w:1,h:1,l:3,m:1}],gpH:[[.9,.1,7]],ord:[]},
+m31:{prof:[[-10.5,.9],[-9.5,1.1],[-6,1.2],[-3,1.25],[0,1.2],[3.5,1.1],[6.5,.9],[9,.65],[10.8,.4],[12.2,.06]],fs:[1.45,.85],
+ wing:W(6.6,7,2.4,40,1.5,0,.28),hs:W(3.6,3.8,1.4,50,-7.2,-.1,.14,-.1),fins:[FN(3.4,4.8,1.8,40,-6.6,.6,2,0)],
+ can:{z:6.8,l:4.4,w:.58,h:.55,bub:1},nac:[{x:1,y:-.1,z0:-10.6,z1:-5,r:.95,m:1}],inl:[{x:1.8,y:-.3,z:2.8,w:1.3,h:1.5,l:4,m:1}],gpH:[[.6,-.2,8]],ord:[[3,-.7,.3,4.4],[4.6,-.7,.3,4.4]]},
+m35:{prof:[[-8,.7],[-7,.95],[-4.5,1.05],[-1.5,1.05],[1.5,1],[4,.9],[6,.72],[7.5,.45],[8.8,.06]],fs:[1.35,.85],
+ wing:W(5.7,6,1.5,42,1,-.15,.23),hs:W(3.6,3,1.2,45,-5.8,-.2,.12),fins:[FN(2.8,3.4,1.4,34,-5.3,.5,1.35,.1)],xw:[W(1.7,4.5,.3,68,4.2,-.1,.12)],
+ can:{z:4.8,l:3,w:.5,h:.5,bub:1},nac:[{x:.85,y:-.1,z0:-8,z1:-4,r:.68,m:1}],inl:[{x:1.3,y:-.5,z:1.8,w:.9,h:1,l:2.6,m:1}],gpH:[[.6,.2,5.8]],ord:[[2.8,-.6,-.2,3.3],[4.2,-.6,-.2,3.3]]},
+s25:{prof:[[-7,.5],[-6,.65],[-3,.78],[-.5,.82],[2,.8],[4,.68],[5.8,.48],[7,.3],[8.1,.06]],fs:[1,.95],
+ wing:W(7.2,3.6,1.8,8,1.9,.25,.3,-.05),hs:W(3,2.2,1.2,20,-5.2,.4,.12),fins:[FN(3.2,4.2,1.5,35,-4.8,.55)],
+ can:{z:4.4,l:2.6,w:.5,h:.55,bub:1},nac:[{x:.78,y:-.05,z0:-7,z1:-1.5,r:.62,m:1,fr:1}],gpH:[[.2,-.4,7.6]],ord:[[3,-.5,.5,3],[4.6,-.5,.5,3],[6,-.5,.5,3]]}
+};
+AF.f2=Object.assign({},AF.f16,{wing:W(5.4,5.8,1.3,40,.2,-.3,.22),hs:W(3.2,3,1,48,-5.8,.05,.12),fins:[FN(3.1,4.2,1.3,40,-4.1,.6)],gpH:[[.5,.2,4.5]]});
+AF.f35b=Object.assign({},AF.f35,{inl:AF.f35.inl.concat([{x:0,y:.85,z:1.2,w:1.1,h:.3,l:1.8,nf:1}])});
 const ST=(vmax,vs,vc,hp,rate,rof,dmg,ammo,msl,hr,acc)=>({vmax,vs,vc,hp,rate,rof,dmg,ammo,msl,hr,acc});
+const AP=(id,n,nat,fac,col,af,st)=>Object.assign({id,n,nat,fac,k:'j',eng:'jet',col},af,{st});
 const SPEC=[
-{id:'a6m5',n:'A6M5 零戦52型',nat:'jp',fac:0,k:'p',eng:'radial',col:[0x5d7150,0x44563a,0x7c895c,0xaab3a0],
- prof:[[-4.6,.04],[-4.1,.13],[-3,.3],[-1.8,.47],[-.3,.62],[1,.66],[2.3,.66],[3.2,.64],[3.65,.55],[3.72,.22]],
- wing:{h:5.9,rc:2.7,tc:1.15,sw:.55,z:.7,y:-.28,dih:.07,th:.22},hs:{h:1.9,rc:1.5,tc:.75,sw:.35,z:-3.55,y:.05},fin:{h:1.8,rc:2.0,tc:.9,sw:1.0,z:-3.2,y:.35},
- can:{z:.95,l:1.7,w:.5,h:.52},prop:{R:1.55,n:3,z:3.72},cowl:{r:.7,z:3.05,l:.65},gpH:[[2.0,-.2,.9],[3.2,-.2,1.0],[.3,.6,3.3]],
- st:ST(158,48,105,100,[1.2,3.2,.5],18,9,700,0,6.5,.22)},
-{id:'p51d',n:'P-51D マスタング',nat:'us',fac:0,k:'p',eng:'inline',col:[0x8a8e8c,0x6f7472,0x9a9e9a,0xb8bcb8],
- prof:[[-5.2,.04],[-4.6,.12],[-3.4,.3],[-2,.5],[-.3,.62],[.9,.6],[2,.5],[3.2,.4],[4.2,.28],[4.8,.1]],
- wing:{h:5.6,rc:2.6,tc:1.3,sw:.4,z:.2,y:-.3,dih:.05,th:.2},hs:{h:2.1,rc:1.5,tc:.8,sw:.5,z:-4.4,y:.1},fin:{h:1.9,rc:2.2,tc:1.0,sw:1.1,z:-4.0,y:.35},
- can:{z:.5,l:2.0,w:.52,h:.62,bub:1},prop:{R:1.7,n:4,z:4.8},scoop:1,gpH:[[2.2,-.2,.7],[2.9,-.2,.75],[3.5,-.2,.8]],
- st:ST(195,55,120,120,[1.0,3.4,.5],26,8,1200,0,6.5,.22)},
-{id:'spit9',n:'スピットファイア Mk.IX',nat:'uk',fac:0,k:'p',eng:'inline',col:[0x5a6a46,0x7a6a48,0x8a9aa0,0xa7c0c8],
- prof:[[-4.6,.04],[-4,.12],[-3,.28],[-1.8,.46],[-.3,.56],[.9,.54],[2,.46],[3,.38],[3.9,.28],[4.2,.1]],
- wing:{h:5.6,rc:3.2,tc:1,sw:.3,z:.8,y:-.28,dih:.06,th:.2,ell:1},hs:{h:1.7,rc:1.3,tc:.6,sw:.4,z:-4,y:.1},fin:{h:1.6,rc:1.6,tc:.8,sw:.8,z:-3.8,y:.35},
- can:{z:.55,l:1.8,w:.42,h:.52,bub:1},prop:{R:1.6,n:4,z:4.2},scoop:2,gpH:[[1.8,-.2,1.2],[2.4,-.2,1.3]],
- st:ST(180,50,110,105,[1.15,3.0,.5],14,15,360,0,6.5,.22)},
-{id:'bf109g',n:'Bf 109 G-6',nat:'de',fac:0,k:'p',eng:'inline',col:[0x6a7468,0x4e5a50,0x8a948a,0x9ab0c0],
- prof:[[-4.4,.04],[-3.8,.12],[-2.6,.3],[-1.4,.45],[-.2,.53],[1,.5],[2.2,.44],[3.1,.36],[3.7,.26],[3.95,.1]],
- wing:{h:4.9,rc:2.2,tc:1.0,sw:.35,z:.6,y:-.3,dih:.05,th:.2},hs:{h:1.6,rc:1.1,tc:.6,sw:.3,z:-3.7,y:.1},fin:{h:1.5,rc:1.7,tc:.9,sw:1.0,z:-3.4,y:.3},
- can:{z:.6,l:1.5,w:.42,h:.5},prop:{R:1.5,n:3,z:3.95},gpH:[[2.0,-.2,.8],[.25,.45,3.4]],
- st:ST(178,52,112,100,[1.1,3.0,.5],20,11,700,0,6.2,.22)},
-{id:'f86f',n:'F-86F セイバー',nat:'us',fac:0,k:'j',col:[0xa4a9ac,0x92979a,0xb4b9bc,0xc8ccce],
- prof:[[-5.4,.3],[-4.6,.45],[-3,.58],[-1,.72],[.8,.78],[2.4,.72],[3.8,.62],[4.8,.52],[5.3,.5]],
- wing:{h:5.3,rc:3.3,tc:1.5,sw:3.6,z:.8,y:-.15,dih:0,th:.28},hs:{h:2.2,rc:1.9,tc:.9,sw:1.7,z:-4.4,y:1.2},fin:{h:2.4,rc:2.8,tc:1.2,sw:2.2,z:-3.9,y:.4},
- can:{z:1.8,l:2.0,w:.5,h:.55,bub:1},gpH:[[.45,-.1,4.6],[.55,-.4,4.5],[.45,-.3,4.7]],
- st:ST(300,75,200,110,[.95,4.2,.45],25,8,1500,2,6.5,.15)},
-{id:'la7',n:'La-7',nat:'ru',fac:1,k:'p',eng:'radial',col:[0x4d5e3c,0x38472c,0x6a7a4a,0x9fb4c8],
- prof:[[-4.3,.04],[-3.8,.12],[-2.8,.28],[-1.6,.45],[-.2,.6],[.9,.65],[2,.68],[2.7,.7],[3.2,.62],[3.3,.25]],
- wing:{h:4.7,rc:2.4,tc:1.1,sw:.3,z:.8,y:-.2,dih:.05,th:.22},hs:{h:1.7,rc:1.2,tc:.6,sw:.3,z:-3.5,y:.1},fin:{h:1.6,rc:1.8,tc:.9,sw:.9,z:-3.2,y:.35},
- can:{z:.6,l:1.6,w:.45,h:.5},prop:{R:1.55,n:3,z:3.3},cowl:{r:.74,z:2.65,l:.65},gpH:[[.35,.5,3.2],[.5,.45,3.0]],
- st:ST(189,50,110,110,[1.2,3.4,.5],26,13,500,0,6.2,.22)},
-{id:'yak3',n:'Yak-3',nat:'ru',fac:1,k:'p',eng:'inline',col:[0x6c7a5c,0x4f5c42,0x8b97a0,0xa9c0d0],
- prof:[[-3.9,.04],[-3.4,.1],[-2.5,.25],[-1.4,.4],[-.2,.48],[.8,.46],[1.8,.4],[2.7,.32],[3.4,.22],[3.65,.08]],
- wing:{h:4.6,rc:2.0,tc:.9,sw:.25,z:.5,y:-.25,dih:.05,th:.18},hs:{h:1.6,rc:1.1,tc:.55,sw:.3,z:-3.3,y:.1},fin:{h:1.5,rc:1.6,tc:.8,sw:.8,z:-3.0,y:.3},
- can:{z:.4,l:1.7,w:.4,h:.46,bub:1},prop:{R:1.4,n:3,z:3.65},gpH:[[.25,.45,3.2],[.4,.4,3.0]],
- st:ST(182,50,110,95,[1.25,3.4,.55],16,12,420,0,5.8,.22)},
-{id:'mig15',n:'MiG-15bis',nat:'ru',fac:1,k:'j',col:[0xa7acb0,0x959aa0,0xb7bcc0,0xc8ccd0],
- prof:[[-5.0,.32],[-4.2,.5],[-2.8,.62],[-.8,.7],[.8,.74],[2.2,.7],[3.5,.6],[4.5,.5],[4.9,.46]],
- wing:{h:5.0,rc:3.2,tc:1.5,sw:3.3,z:.6,y:.12,dih:0,th:.28},hs:{h:2.2,rc:1.8,tc:.9,sw:1.6,z:-4.2,y:.55},fin:{h:2.4,rc:2.8,tc:1.2,sw:2.0,z:-3.8,y:.4},
- can:{z:1.6,l:1.9,w:.5,h:.5,bub:1},fences:1,gpH:[[.35,-.5,4.4],[.5,-.3,4.6]],
- st:ST(300,78,200,105,[.9,4.0,.45],11,22,280,2,6.5,.15)},
-{id:'mig17',n:'MiG-17F',nat:'ru',fac:1,k:'j',col:[0x9ea4a8,0x8c9296,0xaeb4b8,0xc4c8cc],
- prof:[[-5.2,.32],[-4.4,.5],[-2.8,.62],[-.8,.7],[.8,.74],[2.2,.7],[3.5,.6],[4.5,.5],[5.0,.46]],
- wing:{h:5.1,rc:3.3,tc:1.4,sw:4.0,z:.6,y:.12,dih:0,th:.26},hs:{h:2.3,rc:1.8,tc:.9,sw:1.8,z:-4.3,y:.55},fin:{h:2.5,rc:2.9,tc:1.2,sw:2.2,z:-3.9,y:.4},
- can:{z:1.6,l:1.9,w:.5,h:.5,bub:1},fences:1,gpH:[[.35,-.5,4.5],[.5,-.3,4.7]],
- st:ST(310,80,205,100,[.95,4.2,.45],12,20,300,2,6.5,.15)}];
+// ===== 日本 =====
+AP('f15j','F-15J イーグル','jp',0,[0x8a949f,0x77828e,0x9aa4ae,0xb4bcc4],AF.f15,ST(320,65,205,130,[1.15,4.2,.5],28,9,900,6,7.6,.22)),
+AP('f2a','F-2A',   'jp',0,[0x6a7f95,0x56697d,0x8195a8,0xa9b8c6],AF.f2,ST(315,62,200,115,[1.2,4.6,.5],30,8.5,900,6,6.8,.22)),
+AP('f35a_jp','F-35A ライトニングII','jp',0,[0x777d84,0x686e75,0x868c93,0x9ea4aa],AF.f35,ST(325,60,200,125,[1.1,4.2,.5],28,8,700,4,6.8,.22)),
+AP('f35b_jp','F-35B ライトニングII','jp',0,[0x757b82,0x666c73,0x848a91,0x9ca2a8],AF.f35b,ST(310,56,190,125,[1.05,4,.5],28,8,700,4,6.8,.2)),
+AP('f4ej','F-4EJ改 ファントムII','jp',0,[0x6a7b8a,0x586876,0x7e8f9d,0xaab6c0],AF.f4,ST(300,70,200,135,[.95,3.8,.45],30,8,700,4,7.6,.17)),
+// ===== 米国 =====
+AP('f22a','F-22A ラプター','us',0,[0x7a8088,0x6c727a,0x848a92,0x9aa0a6],AF.f22,ST(340,62,215,140,[1.25,5,.55],28,9,900,6,7.4,.26)),
+AP('f15ex','F-15EX イーグルII','us',0,[0x7b838c,0x6d757e,0x8a929a,0xa6aeb6],AF.f15,ST(325,66,205,140,[1.15,4.2,.5],28,9,900,8,7.8,.23)),
+AP('f16c','F-16C ファイティングファルコン','us',0,[0x8a919a,0x7a828b,0x99a0a8,0xb0b7be],AF.f16,ST(320,64,205,105,[1.3,5.2,.5],28,8,800,4,6.4,.23)),
+AP('f18e','F/A-18E スーパーホーネット','us',0,[0x7f8790,0x707882,0x8e969e,0xa8b0b8],AF.f18,ST(310,58,195,130,[1.2,4.4,.5],28,8,800,6,7,.2)),
+AP('a10c','A-10C サンダーボルトII','us',0,[0x6b7078,0x5c6168,0x7a7f86,0x9ea3aa],AF.a10,ST(205,42,135,230,[.9,2.4,.4],22,20,1100,2,8.6,.1)),
+// ===== 英国 =====
+AP('typ4','ユーロファイター タイフーン FGR4','uk',0,[0x70767d,0x62686f,0x7f858c,0x9ba1a8],AF.typ,ST(330,64,210,120,[1.25,4.8,.55],26,9,700,6,6.9,.25)),
+AP('f35b_uk','F-35B ライトニング','uk',0,[0x72787f,0x636970,0x818790,0x9aa0a7],AF.f35b,ST(310,56,190,125,[1.05,4,.5],28,8,700,4,6.8,.2)),
+AP('tor4','トーネード GR4','uk',0,[0x5c6168,0x4e5359,0x6b7077,0x8b9096],AF.tor,ST(315,70,200,125,[.95,3.6,.45],24,9,800,2,7.6,.17)),
+AP('har9','ハリアー GR9','uk',0,[0x55595d,0x474b4f,0x646a6e,0x838a8e],AF.har,ST(260,36,160,110,[1.15,3.8,.55],24,9,600,2,6.6,.16)),
+AP('hawk2','ホーク T.2','uk',0,[0x4b4f55,0x3e4248,0x5a5e64,0x7b8086],AF.hawk,ST(250,50,150,95,[1.2,4.4,.5],18,9,300,2,5.8,.14)),
+// ===== 中国 =====
+AP('j20','J-20 威龍','cn',1,[0x7b8088,0x6c7178,0x8a9098,0xa0a6ac],AF.j20,ST(335,64,210,135,[1.1,4.2,.5],28,9,800,6,7.8,.25)),
+AP('j10c','J-10C','cn',1,[0x8a8f96,0x6f7883,0x9aa0a6,0xb2b8be],AF.j10,ST(320,62,200,105,[1.3,5,.5],28,8,800,6,6.4,.23)),
+AP('j16','J-16','cn',1,[0x8e949b,0x74808a,0x9ea4ab,0xb4bac0],AF.flk,ST(325,64,205,135,[1.2,4.4,.5],28,9,900,8,7.8,.22)),
+AP('j35a','J-35A','cn',1,[0x78808a,0x6a727c,0x888f99,0x9fa6ae],AF.j35,ST(322,60,200,122,[1.1,4.2,.5],28,8,700,4,7,.22)),
+AP('jh7a','JH-7A 飛豹','cn',1,[0x8a9096,0x6a747c,0x9ba1a7,0xb1b7bd],AF.jh7,ST(300,70,195,130,[.95,3.6,.45],24,10,700,4,7.6,.16)),
+// ===== ロシア =====
+AP('su57','Su-57 フェロン','ru',1,[0x6d757d,0x5f676f,0x7c848c,0x969ea6],AF.s57,ST(335,62,210,135,[1.25,4.8,.55],26,10,700,6,7.6,.25)),
+AP('su35s','Su-35S フランカーE','ru',1,[0x8b929b,0x6f7882,0x9aa1a9,0xb1b8bf],AF.flk,ST(325,60,205,135,[1.3,4.6,.6],26,10,800,6,7.8,.23)),
+AP('mig31','MiG-31BM フォックスハウンド','ru',1,[0x8c9399,0x7a8187,0x9ca2a8,0xb4babf],AF.m31,ST(345,80,235,140,[.85,2.8,.4],24,10,600,6,8.4,.2)),
+AP('mig35','MiG-35 ファルクラムF','ru',1,[0x777f87,0x686f77,0x868e96,0x9ea5ab],AF.m35,ST(318,60,200,115,[1.3,5,.55],26,9,700,6,6.8,.23)),
+AP('su25sm','Su-25SM フロッグフット','ru',1,[0x5e6b48,0x7d7a50,0x42503a,0x9fb0c0],AF.s25,ST(210,44,140,220,[.95,2.6,.45],26,16,900,2,8.2,.1))
+];
 const SPECS={};SPEC.forEach(s=>SPECS[s.id]=s);const byFac=f=>SPEC.filter(s=>s.fac===f);
 // ============================ 機体モデル ============================
 const MC={},DEC={};
@@ -215,6 +271,8 @@ function decalTex(nat){if(DEC[nat])return DEC[nat];const c=document.createElemen
 if(nat==='jp')ci(44,'#c8101c');
 else if(nat==='us'){g.fillStyle='#f4f4f4';g.fillRect(4,52,120,24);g.fillStyle='#16306e';g.fillRect(8,56,112,16);g.fillStyle='#f4f4f4';g.fillRect(14,57,100,14);ci(40,'#f4f4f4');ci(37,'#16306e');g.fillStyle='#f4f4f4';g.beginPath();for(let i=0;i<10;i++){const r=i%2?9:22,a=-PI/2+i*PI/5;g.lineTo(C+Math.cos(a)*r,C+Math.sin(a)*r)}g.fill()}
 else if(nat==='uk'){ci(46,'#16306e');ci(34,'#f4f4f4');ci(20,'#c8101c')}
+else if(nat==='ru'){ci(46,'#1c3f94');ci(40,'#f4f4f4');g.fillStyle='#d41c1c';g.beginPath();for(let i=0;i<10;i++){const r=i%2?13:34,a=-PI/2+i*PI/5;g.lineTo(C+Math.cos(a)*r,C+Math.sin(a)*r)}g.fill()}
+else if(nat==='cn'){ci(46,'#c8101c');g.fillStyle='#fde047';g.beginPath();for(let i=0;i<10;i++){const r=i%2?16:40,a=-PI/2+i*PI/5;g.lineTo(C+Math.cos(a)*r,C+Math.sin(a)*r)}g.fill()}
 else if(nat==='de'){g.fillStyle='#f4f4f4';g.fillRect(C-14,C-46,28,92);g.fillRect(C-46,C-14,92,28);g.fillStyle='#0a0a0a';g.fillRect(C-10,C-42,20,84);g.fillRect(C-42,C-10,84,20)}
 else{g.fillStyle='#f4f4f4';g.beginPath();for(let i=0;i<10;i++){const r=i%2?17:46,a=-PI/2+i*PI/5;g.lineTo(C+Math.cos(a)*r,C+Math.sin(a)*r)}g.fill();g.fillStyle='#d41c1c';g.beginPath();for(let i=0;i<10;i++){const r=i%2?13:38,a=-PI/2+i*PI/5;g.lineTo(C+Math.cos(a)*r,C+Math.sin(a)*r)}g.fill()}
 return DEC[nat]=new THREE.CanvasTexture(c)}
@@ -224,66 +282,61 @@ const sh=new THREE.Shape();sh.moveTo(0,-LE(0));for(let i=1;i<=N;i++)sh.lineTo(s*
 const th=w.th,eg=new THREE.ExtrudeGeometry(sh,{depth:th,bevelEnabled:true,bevelThickness:th*.4,bevelSize:th*.3,bevelOffset:-th*.3,bevelSegments:1,curveSegments:2});eg.rotateX(-PI/2);puv(eg,.1,0);
 const grp=new THREE.Group(),top=new THREE.Mesh(eg,M.camo);grp.add(top);const ug=new THREE.ShapeGeometry(sh);ug.rotateX(-PI/2);const un=new THREE.Mesh(ug,M.under);un.position.y=-th*.4-.012;grp.add(un);return{grp,ch,LE,TE}}
 function hingeBox(par,len,th,dep,x,y,z,name,rotAxis){const pv=new THREE.Group();pv.position.set(x,y,z);pv.name=name;const b=new THREE.Mesh(new THREE.BoxGeometry(len,th,dep),par.mat);b.position.z=-dep/2;pv.add(b);par.g.add(pv);return pv}
-function buildPlane(sp){const g=new THREE.Group(),M=matsFor(sp),P=sp.prof,jet=sp.k==='j';
+function buildPlane(sp){const g=new THREE.Group(),M=matsFor(sp),P=sp.prof,jet=sp.k==='j',FX=sp.fs?sp.fs[0]:.9,FY=sp.fs?sp.fs[1]:.95;
 const rAt=z=>{if(z<=P[0][0])return P[0][1];for(let i=1;i<P.length;i++)if(z<=P[i][0]){const a=P[i-1],b=P[i],t=(z-a[0])/(b[0]-a[0]);return a[1]+(b[1]-a[1])*t}return P[P.length-1][1]};
 const mesh=(geo,mat,x,y,z)=>{const m=new THREE.Mesh(geo,mat);m.position.set(x||0,y||0,z||0);g.add(m);return m},bx=(w,h,d,mat,x,y,z)=>mesh(new THREE.BoxGeometry(w,h,d),mat,x,y,z);
 const crv=new THREE.SplineCurve(P.map(p=>new THREE.Vector2(Math.max(.02,p[1]),p[0]))).getPoints(52);
-const mkF=(a,l)=>{const ge=new THREE.LatheGeometry(crv,30,a,l);ge.rotateX(PI/2);ge.scale(.9,.95,1);puv(ge,.12,1);return ge};
+const mkF=(a,l)=>{const ge=new THREE.LatheGeometry(crv,30,a,l);ge.rotateX(PI/2);ge.scale(FX,FY,1);puv(ge,.12,1);return ge};
 mesh(mkF(PI/2,PI),M.camo);mesh(mkF(-PI/2,PI),M.under);
+const mkDecal=(sz)=>new THREE.Mesh(new THREE.PlaneGeometry(sz,sz),new THREE.MeshBasicMaterial({map:decalTex(sp.nat),transparent:true,polygonOffset:true,polygonOffsetFactor:-4,depthWrite:false}));
 // 主翼
 for(const s of[1,-1]){const w=sp.wing,wp=wingParts(w,s,M),wg=wp.grp;wg.position.y=w.y;wg.rotation.z=s*(w.dih||0);g.add(wg);
 const t0=.55,t1=.96,tm=(t0+t1)/2,c=wp.ch(tm),hz=wp.TE(tm)+.28*c;const pv=new THREE.Group();pv.position.set(s*w.h*tm,w.th*.5,hz);pv.name=s>0?'ailL':'ailR';const ab=new THREE.Mesh(new THREE.BoxGeometry(w.h*(t1-t0),w.th*.9,.28*c),M.camo);ab.position.z=-.14*c;ab.position.y=.02;pv.add(ab);wg.add(pv);
-// フラップのパネルライン
 const fl=new THREE.Mesh(new THREE.BoxGeometry(w.h*.34,.02,.03),M.dark);fl.position.set(s*w.h*.27,w.th+.03,wp.TE(.27)+.3*wp.ch(.27));wg.add(fl);
-// 国籍マーク
-const dm=new THREE.Mesh(new THREE.PlaneGeometry(1.5,1.5),new THREE.MeshBasicMaterial({map:decalTex(sp.nat),transparent:true,polygonOffset:true,polygonOffsetFactor:-4,depthWrite:false}));dm.rotation.x=-PI/2;dm.position.set(s*w.h*.58,w.th*1.4+.04,(wp.LE(.58)+wp.TE(.58))/2);wg.add(dm);
+const ds=Math.min(2.4,Math.max(1.3,wp.ch(.58)*.8)),dm=mkDecal(ds);dm.rotation.x=-PI/2;dm.position.set(s*w.h*.58,w.th*1.4+.04,(wp.LE(.58)+wp.TE(.58))/2);wg.add(dm);
 const dm2=dm.clone();dm2.rotation.x=PI/2;dm2.position.y=-w.th*.4-.04;wg.add(dm2);
-// 航法灯
 const nl=new THREE.Mesh(new THREE.SphereGeometry(.09,8,6),s>0?M.red:M.grn);nl.position.set(s*(w.h-.05),w.th*.4,wp.LE(1)-.2);wg.add(nl);
-if(sp.fences){const f=new THREE.Mesh(new THREE.BoxGeometry(.03,.3,wp.ch(.55)*.9),M.camo);f.position.set(s*w.h*.55,w.th+.1,(wp.LE(.55)+wp.TE(.55))/2);wg.add(f)}
-if(sp.scoop===2){const rd=new THREE.Mesh(new THREE.BoxGeometry(.7,.4,.9),M.dark);rd.position.set(s*w.h*.38,-.35,wp.TE(.38)+.5);wg.add(rd)}
-// ピトー管
 if(s>0){const pt=new THREE.Mesh(new THREE.CylinderGeometry(.02,.02,.9,5),M.met);pt.rotation.x=PI/2;pt.position.set(w.h*.62,-.05,wp.LE(.62)+.45);wg.add(pt)}}
+// ストレーキ・カナード等 (固定翼)
+for(const w0 of sp.xw||[])for(const s of[1,-1]){const w=Object.assign({th:.12,dih:0,y:0},w0),wp=wingParts(w,s,M),wg=wp.grp;wg.position.y=w.y;wg.rotation.z=s*(w.dih||0);g.add(wg)}
 // 水平尾翼 (エレベーター付き)
-for(const s of[1,-1]){const w=Object.assign({ell:0,dih:.02,th:.11},sp.hs),wp=wingParts(w,s,M),wg=wp.grp;wg.position.y=w.y;wg.rotation.z=s*w.dih;g.add(wg);
+if(sp.hs)for(const s of[1,-1]){const w=Object.assign({ell:0,dih:.02,th:.11},sp.hs),wp=wingParts(w,s,M),wg=wp.grp;wg.position.y=w.y;wg.rotation.z=s*w.dih;g.add(wg);
 const c=wp.ch(.5),pv=new THREE.Group();pv.position.set(s*w.h*.5,.04,wp.TE(.5)+.32*c);pv.name='elev';const eb=new THREE.Mesh(new THREE.BoxGeometry(w.h*.85,.08,.32*c),M.camo);eb.position.z=-.16*c;pv.add(eb);wg.add(pv)}
-// 垂直尾翼+ラダー
-{const f=sp.fin,sh=new THREE.Shape();sh.moveTo(f.z,0);sh.lineTo(f.z-f.sw,f.h);sh.lineTo(f.z-f.sw-f.tc,f.h);sh.lineTo(f.z-f.rc,0);sh.closePath();
-const eg=new THREE.ExtrudeGeometry(sh,{depth:.14,bevelEnabled:true,bevelThickness:.03,bevelSize:.03,bevelOffset:-.03,bevelSegments:1});eg.translate(0,0,-.07);eg.rotateY(-PI/2);puv(eg,.1,1);const fm=new THREE.Mesh(eg,M.camo);fm.position.y=f.y;g.add(fm);
-const t=.45,c=f.rc+(f.tc-f.rc)*t,le=f.z-f.sw*t,te=le-c,pv=new THREE.Group();pv.position.set(0,f.y+f.h*t,te+.3*c);pv.name='rud';const rb=new THREE.Mesh(new THREE.BoxGeometry(.1,f.h*.78,.3*c),M.camo);rb.position.z=-.15*c;pv.add(rb);g.add(pv);
-if(sp.nat!=='jp'||1){const dm=new THREE.Mesh(new THREE.PlaneGeometry(.6,.6),new THREE.MeshBasicMaterial({map:decalTex(sp.nat),transparent:true,polygonOffset:true,polygonOffsetFactor:-4,depthWrite:false}));for(const s of[1,-1]){const d=dm.clone();d.position.set(s*.085,f.y+f.h*.38,f.z-f.rc*.55+.2);d.rotation.y=s>0?PI/2:-PI/2;g.add(d)}}}
+// 垂直尾翼 (単・双・傾斜・ベントラルフィン) + ラダー
+for(const f of sp.fins||[])for(const s of(f.x?[1,-1]:[1])){const fg=new THREE.Group();fg.position.set(s*f.x,f.y,0);fg.rotation.z=f.dn?PI+s*f.cant:-s*f.cant;g.add(fg);
+const sh=new THREE.Shape();sh.moveTo(f.z,0);sh.lineTo(f.z-f.sw,f.h);sh.lineTo(f.z-f.sw-f.tc,f.h);sh.lineTo(f.z-f.rc,0);sh.closePath();
+const eg=new THREE.ExtrudeGeometry(sh,{depth:.14,bevelEnabled:true,bevelThickness:.03,bevelSize:.03,bevelOffset:-.03,bevelSegments:1});eg.translate(0,0,-.07);eg.rotateY(-PI/2);puv(eg,.1,1);fg.add(new THREE.Mesh(eg,M.camo));
+if(!f.norud){const t=.45,c=f.rc+(f.tc-f.rc)*t,le=f.z-f.sw*t,te=le-c,pv=new THREE.Group();pv.position.set(0,f.h*t,te+.3*c);pv.name='rud';const rb=new THREE.Mesh(new THREE.BoxGeometry(.1,f.h*.78,.3*c),M.camo);rb.position.z=-.15*c;pv.add(rb);fg.add(pv);
+for(const s2 of[1,-1]){const d=mkDecal(.6);d.position.set(s2*.085,f.h*.38,f.z-f.rc*.55+.2);d.rotation.y=s2>0?PI/2:-PI/2;fg.add(d)}}}
 // 胴体マーク
-{const z=-2.7,r=rAt(z)*.9*.92;for(const s of[1,-1]){const d=new THREE.Mesh(new THREE.PlaneGeometry(.95,.95),new THREE.MeshBasicMaterial({map:decalTex(sp.nat),transparent:true,polygonOffset:true,polygonOffsetFactor:-4,depthWrite:false}));d.position.set(s*(r+.02),.02,z+(jet?-.5:0));d.rotation.y=s>0?PI/2:-PI/2;g.add(d)}}
+{const z=sp.dz||-3.2,r=rAt(z)*FX*.92;for(const s of[1,-1]){const d=mkDecal(.95);d.position.set(s*(r+.02),.02,z);d.rotation.y=s>0?PI/2:-PI/2;g.add(d)}}
 // キャノピー
-{const c=sp.can,yb=rAt(c.z)*.62,cp=new THREE.Mesh(new THREE.SphereGeometry(1,22,12,0,PI*2,0,PI/2),M.glass);cp.scale.set(c.w,c.h,c.l/2);cp.position.set(0,yb,c.z);g.add(cp);
+{const c=sp.can,yb=rAt(c.z)*FY*.65,cp=new THREE.Mesh(new THREE.SphereGeometry(1,22,12,0,PI*2,0,PI/2),M.glass);cp.scale.set(c.w,c.h,c.l/2);cp.position.set(0,yb,c.z);g.add(cp);
 const seat=new THREE.Mesh(new THREE.BoxGeometry(.4,.5,.3),M.dark);seat.position.set(0,yb-.05,c.z-.3);g.add(seat);const hd=new THREE.Mesh(new THREE.SphereGeometry(.15,12,10),M.skin);hd.position.set(0,yb+.28,c.z-.2);g.add(hd);const hm=new THREE.Mesh(new THREE.SphereGeometry(.17,12,8,0,PI*2,0,1.7),M.helm);hm.position.copy(hd.position);g.add(hm);
 const bd=new THREE.Mesh(new THREE.BoxGeometry(.34,.4,.2),M.helm);bd.position.set(0,yb+.02,c.z-.25);g.add(bd);
-for(const s of[1,-1])bx(.035,.035,c.l*.92,M.dark,s*c.w*.97,yb+.02,c.z);bx(c.w*1.9,.04,.04,M.dark,0,yb+.12,c.z+c.l*.38);bx(c.w*1.2,.04,.04,M.dark,0,yb+c.h*.82,c.z+c.l*.1);bx(c.w*1.4,.04,.04,M.dark,0,yb+c.h*.7,c.z-c.l*.28);
-const an=new THREE.Mesh(new THREE.CylinderGeometry(.015,.015,.5,5),M.dark);an.position.set(0,yb+c.h+.25,c.z-c.l*.55);g.add(an)}
-// エンジン・機首
-const nz=P[P.length-1][0];
-if(sp.eng==='radial'){const cw=sp.cowl,cy=new THREE.Mesh(new THREE.CylinderGeometry(cw.r,cw.r*.96,cw.l,28,1,true),M.met);cy.rotation.x=PI/2;cy.position.z=cw.z+cw.l/2;g.add(cy);
-const lip=new THREE.Mesh(new THREE.TorusGeometry(cw.r,.045,8,28),M.met);lip.position.z=cw.z+cw.l;g.add(lip);const ef=new THREE.Mesh(new THREE.CircleGeometry(cw.r*.93,24),M.dark);ef.position.z=cw.z+cw.l-.06;g.add(ef);
-for(let i=0;i<9;i++){const a=i/9*PI*2,c=new THREE.Mesh(new THREE.CylinderGeometry(.09,.09,.18,8),M.met);c.rotation.x=PI/2;c.position.set(Math.cos(a)*cw.r*.62,Math.sin(a)*cw.r*.62,cw.z+cw.l-.14);g.add(c)}
-for(let i=0;i<14;i++){const a=i/14*PI*2,f=new THREE.Mesh(new THREE.BoxGeometry(.05,.1,.28),M.dark);f.position.set(Math.cos(a)*cw.r*.99,Math.sin(a)*cw.r*.99,cw.z+.12);f.rotation.z=a;g.add(f)}
-for(const s of[1,-1])for(let i=0;i<4;i++)bx(.06,.06,.3,M.dark,s*(cw.r+.02),-.2+i*.1,cw.z-.1)}
-else if(sp.eng==='inline'){for(const s of[1,-1])for(let i=0;i<6;i++){const e=new THREE.Mesh(new THREE.CylinderGeometry(.04,.05,.22,6),M.dark);e.rotation.z=s*1.1;e.position.set(s*.33,.2,nz-1.9+i*.2);g.add(e)}bx(.5,.07,.8,M.dark,0,.35,nz-.9);
-if(sp.scoop===1){bx(.7,.5,1.2,M.camo,0,-.58,-.2);const sc=new THREE.Mesh(new THREE.BoxGeometry(.6,.4,.05),M.dark);sc.position.set(0,-.58,.42);g.add(sc)}else if(sp.scoop===2){bx(.5,.35,.9,M.dark,0,-.5,1.4)}
-for(const s of[1,-1]){const gb=new THREE.Mesh(new THREE.SphereGeometry(.09,8,6),M.camo);gb.scale.set(1,1,2.2);gb.position.set(s*.2,.4,nz-.7);g.add(gb)}}
-if(jet){const r0=P[0][1],nzl=new THREE.Mesh(new THREE.CylinderGeometry(r0*.78,r0*.7,.5,20,1,true),M.met);nzl.rotation.x=PI/2;nzl.position.z=P[0][0]-.1;g.add(nzl);const nd=new THREE.Mesh(new THREE.CircleGeometry(r0*.74,20),M.dark);nd.rotation.y=PI;nd.position.z=P[0][0]-.05;g.add(nd);
-const fm=new THREE.Mesh(new THREE.CylinderGeometry(r0*.6,r0*.2,1.4,12,1,true),new THREE.MeshBasicMaterial({color:0xff8a30,transparent:true,opacity:.0,blending:THREE.AdditiveBlending,depthWrite:false,side:THREE.DoubleSide}));fm.rotation.x=-PI/2;fm.position.z=P[0][0]-.9;fm.name='flame';g.add(fm);
-const rn=P[P.length-1][1],ring=new THREE.Mesh(new THREE.TorusGeometry(rn*.96,.08,8,24),M.met);ring.position.z=nz-.02;g.add(ring);const dsc=new THREE.Mesh(new THREE.CircleGeometry(rn*.9,20),M.dark);dsc.position.z=nz-.5;g.add(dsc);
-const sc=new THREE.Mesh(new THREE.SphereGeometry(.2,10,8,0,PI*2,0,PI/2),M.met);sc.rotation.x=PI/2;sc.position.z=nz-.55;g.add(sc)}
-// プロペラ
-if(sp.prop){const pr=sp.prop,pg=new THREE.Group();pg.position.z=pr.z;pg.name='prop';g.add(pg);const sp_=new THREE.Mesh(new THREE.ConeGeometry(.3,.8,16),M.spin);sp_.rotation.x=PI/2;sp_.position.z=.38;pg.add(sp_);const bs=new THREE.Mesh(new THREE.CylinderGeometry(.34,.34,.12,16),M.spin);bs.rotation.x=PI/2;pg.add(bs);
-for(let i=0;i<pr.n;i++){const b=new THREE.Mesh(new THREE.BoxGeometry(.2,pr.R,.035),M.prop);b.geometry.translate(0,pr.R/2+.2,0);b.rotation.z=i/pr.n*PI*2;b.rotation.y=.0;const bg=new THREE.Group();bg.rotation.z=i/pr.n*PI*2;b.rotation.z=0;const tw=new THREE.Group();tw.rotation.y=.35;tw.add(b);bg.add(tw);pg.add(bg);const tip=new THREE.Mesh(new THREE.BoxGeometry(.2,.28,.037),new THREE.MeshBasicMaterial({color:0xf0d040}));tip.position.y=pr.R+.07;tw.add(tip)}
-const bl=new THREE.Mesh(new THREE.CircleGeometry(pr.R,32),new THREE.MeshBasicMaterial({color:0x222222,transparent:true,opacity:.0,side:THREE.DoubleSide,depthWrite:false}));bl.name='blur';pg.add(bl)}
-// 銃身
+for(const s of[1,-1])bx(.035,.035,c.l*.92,M.dark,s*c.w*.97,yb+.02,c.z);bx(c.w*1.9,.04,.04,M.dark,0,yb+.12,c.z+c.l*.38);bx(c.w*1.2,.04,.04,M.dark,0,yb+c.h*.82,c.z+c.l*.1);bx(c.w*1.4,.04,.04,M.dark,0,yb+c.h*.7,c.z-c.l*.28)}
+// エンジンナセル・ノズル
+const mkFlame=(r,x,y,z)=>{const fm=new THREE.Mesh(new THREE.CylinderGeometry(r*.6,r*.2,1.6,12,1,true),new THREE.MeshBasicMaterial({color:0xff8a30,transparent:true,opacity:0,blending:THREE.AdditiveBlending,depthWrite:false,side:THREE.DoubleSide}));fm.rotation.x=-PI/2;fm.position.set(x,y,z);fm.name='flame';g.add(fm)};
+if(sp.nac){for(const n of sp.nac)for(const s of(n.m?[1,-1]:[1])){const len=n.z1-n.z0,cg=new THREE.CylinderGeometry(n.r,n.r*.84,len,18);cg.rotateX(PI/2);mesh(cg,M.camo,s*n.x,n.y,(n.z0+n.z1)/2);
+const nz=new THREE.Mesh(new THREE.CylinderGeometry(n.r*.8,n.r*.7,.7,18,1,true),M.met);nz.rotation.x=PI/2;nz.position.set(s*n.x,n.y,n.z0-.2);g.add(nz);
+const nd=new THREE.Mesh(new THREE.CircleGeometry(n.r*.7,18),M.dark);nd.rotation.y=PI;nd.position.set(s*n.x,n.y,n.z0+.05);g.add(nd);
+mkFlame(n.r,s*n.x,n.y,n.z0-.8);
+if(n.fr){const fd=new THREE.Mesh(new THREE.CircleGeometry(n.r*.9,18),M.dark);fd.position.set(s*n.x,n.y,n.z1+.02);g.add(fd)}}}
+else{const r0=P[0][1],nzl=new THREE.Mesh(new THREE.CylinderGeometry(r0*.78,r0*.7,.5,20,1,true),M.met);nzl.rotation.x=PI/2;nzl.position.z=P[0][0]-.1;g.add(nzl);const nd=new THREE.Mesh(new THREE.CircleGeometry(r0*.74,20),M.dark);nd.rotation.y=PI;nd.position.z=P[0][0]-.05;g.add(nd);mkFlame(r0,0,0,P[0][0]-.8)}
+// ハリアーの下向きノズル
+for(const n of sp.nd||[])for(const s of(n.m?[1,-1]:[1])){const c=new THREE.Mesh(new THREE.CylinderGeometry(n.r,n.r*.8,.6,12),M.met);c.position.set(s*n.x,n.y,n.z);g.add(c)}
+// 空気取り入れ口 (正面は黒)
+for(const it of sp.inl||[])for(const s of(it.m?[1,-1]:[1])){bx(it.w,it.h,it.l,M.camo,s*it.x,it.y,it.z);if(!it.nf)bx(it.w*.78,it.h*.78,.06,M.dark,s*it.x,it.y,it.z+it.l/2+.01)}
+// 搭載ミサイル (主翼下)
+const om=new THREE.MeshStandardMaterial({color:0xcfd3d6,roughness:.5,metalness:.3});
+for(const o of sp.ord||[])for(const s of[1,-1]){const m=new THREE.Mesh(new THREE.CylinderGeometry(.09,.09,o[3],8),om);m.rotation.x=PI/2;m.position.set(s*o[0],o[1],o[2]);g.add(m);
+const nc=new THREE.Mesh(new THREE.ConeGeometry(.09,.3,8),M.dark);nc.rotation.x=PI/2;nc.position.set(s*o[0],o[1],o[2]+o[3]/2+.15);g.add(nc);bx(.06,.34,.8,M.dark,s*o[0],o[1]+.2,o[2])}
+// 機関砲
 for(const q of sp.gpH)for(const s of[1,-1]){const b=new THREE.Mesh(new THREE.CylinderGeometry(.035,.045,1.0,7),M.dark);b.rotation.x=PI/2;b.position.set(s*q[0],q[1],q[2]-.5);g.add(b)}
 g.traverse(o=>{if(o.isMesh)o.castShadow=false});return g}
 const PROTO={};
 function modelOf(sp){const pr=PROTO[sp.id]||(PROTO[sp.id]=buildPlane(sp));return pr.clone(true)}
-function partsOf(g){const o={ail:[],elev:[],prop:null,blur:null,flame:null,rud:null};g.traverse(n=>{if(n.name==='ailL'||n.name==='ailR')o.ail.push(n);else if(n.name==='elev')o.elev.push(n);else if(n.name==='prop')o.prop=n;else if(n.name==='blur')o.blur=n;else if(n.name==='flame')o.flame=n;else if(n.name==='rud')o.rud=n});return o}
+function partsOf(g){const o={ail:[],elev:[],prop:null,blur:null,flame:null,rud:null,flames:[],ruds:[]};g.traverse(n=>{if(n.name==='ailL'||n.name==='ailR')o.ail.push(n);else if(n.name==='elev')o.elev.push(n);else if(n.name==='prop')o.prop=n;else if(n.name==='blur')o.blur=n;else if(n.name==='flame'){o.flame=n;o.flames.push(n)}else if(n.name==='rud'){o.rud=n;o.ruds.push(n)}});return o}
 // ============================ ゲーム状態 ============================
 let PAUSE=0,run=false,over=false,endT=0,last=0,MODE=0,DF=1,faction=0,selSp=null,planes=[],bots=[],player=null,spec=null,ON=null,wantOn=false,quick=false,uidc=1,kills=0,shake=0,flash=0,mt=0,tmat=0;
 const K={up:0,dn:0,fire:0,boost:0,zoom:0},IN={thr:.75},TIX=[30,30],ST5={kills:0,deaths:0,dmg:0,assist:0},T0=600;let camYaw=0,camPitch=0,camMode=0,mdrag=null;
@@ -388,9 +441,9 @@ else if(p.hp<p.maxhp*.55&&Math.random()<dt*14)puff(p.pos.x,p.pos.y,p.pos.z,0,1,0
 if(p.rem){remPose(p,dt);if(p.firing)fireGuns(p,dt)}else if(p.isPlayer&&!ON?.wait&&!lockOn)playerStep(p,dt);else if(p.bot&&!p.rem){if(!bots.hold)botAI(p,dt)}}
 let lockOn=false;
 function remPose(p,dt){const Sn=p.sn;if(!Sn.length)return;const a=Sn[Sn.length-1],age=Math.min(.3,(performance.now()-a.t)/1000),tgt=_v.copy(a.pos).addScaledVector(a.vel,age);p.pos.lerp(tgt,Math.min(1,dt*12));p.q.slerp(a.q,Math.min(1,dt*12));p.spd=a.spd;p.vel.copy(a.vel);p.thr=a.thr;p.firing=a.fi}
-function animPlane(p,dt){const g=p.g,pr=p.parts;g.position.copy(p.pos);g.quaternion.copy(p.q);const i=p.inp;pr.ail.forEach((a,k)=>a.rotation.x=(a.name==='ailL'?1:-1)*i.r*.45);pr.elev.forEach(e=>e.rotation.x=-i.p*.4);if(pr.rud)pr.rud.rotation.y=-i.y*.5;
+function animPlane(p,dt){const g=p.g,pr=p.parts;g.position.copy(p.pos);g.quaternion.copy(p.q);const i=p.inp;pr.ail.forEach((a,k)=>a.rotation.x=(a.name==='ailL'?1:-1)*i.r*.45);pr.elev.forEach(e=>e.rotation.x=-i.p*.4);pr.ruds.forEach(r=>r.rotation.y=-i.y*.5);
 if(pr.prop){pr.prop.rotation.z+=dt*(p.alive?(8+p.thr*60):6);const bl=pr.blur;if(bl)bl.material.opacity=p.alive?cl(p.thr*.35+.05,0,.3):0}
-if(pr.flame){pr.flame.material.opacity=p.alive?cl((p.thr-.55)*(p.boost>0?1.6:1.2),0,.7):0;pr.flame.scale.z=.7+p.thr*.8}
+pr.flames.forEach(fl=>{fl.material.opacity=p.alive?cl((p.thr-.55)*(p.boost>0?1.6:1.2),0,.7):0;fl.scale.z=.7+p.thr*.8});
 if(p.s.k==='j'&&p.alive&&p.thr>.4&&Math.random()<dt*10){const b=new V3(0,0,p.s.prof[0][0]-1).applyQuaternion(p.q).add(p.pos);puff(b.x,b.y,b.z,0,0,0,1.2,4,0xcccccc,2,.25)}
 if(p.alive&&p.pos.y>3200&&p.spd>p.s.st.vmax*.6&&Math.random()<dt*14){for(const s of[1,-1]){const b=new V3(s*p.s.wing.h*1.25,0,p.s.wing.z-1).applyQuaternion(p.q).add(p.pos);puff(b.x,b.y,b.z,0,0,0,2.4,5,0xffffff,3,.35)}}}
 // ============================ ネットワーク (P2P) ============================
@@ -480,7 +533,7 @@ function render(dt){const vt=camTarget();for(const p of planes){if(p.rem&&!p.sn.
 const cd=new V3(Math.cos(camPitch)*Math.cos(camYaw),Math.sin(camPitch),Math.cos(camPitch)*Math.sin(camYaw));
 const tf=K.zoom?32:(vt.boost>0?72:65);cam.fov+=(tf-cam.fov)*Math.min(1,dt*8);cam.updateProjectionMatrix();
 shake=Math.max(0,shake-dt*2.5);const sh=shake*.6;let cp;
-if(camMode===1&&vt.alive){const c=vt.s.can;cp=new V3(0,rAtZ(vt.s,c.z)*.62+.3,c.z-.1).multiplyScalar(1.25).applyQuaternion(vt.q).add(vt.pos);vt.g.traverse(o=>{});}
+if(camMode===1&&vt.alive){const c=vt.s.can;cp=new V3(0,rAtZ(vt.s,c.z)*(vt.s.fs?vt.s.fs[1]:.95)*.65+.3,c.z-.1).multiplyScalar(1.25).applyQuaternion(vt.q).add(vt.pos);vt.g.traverse(o=>{});}
 else cp=vt.pos.clone().addScaledVector(cd,-34).add(new V3(0,6,0));
 if(!render.p)render.p=cp.clone();render.p.lerp(cp,Math.min(1,dt*(camMode?40:12)));cam.position.set(render.p.x+(Math.random()-.5)*sh,Math.max(render.p.y,Math.max(0,gh(render.p.x,render.p.z))+3)+(Math.random()-.5)*sh,render.p.z+(Math.random()-.5)*sh);
 cam.lookAt(cam.position.x+cd.x*100,cam.position.y+cd.y*100,cam.position.z+cd.z*100);
@@ -534,12 +587,12 @@ $('sbd').innerHTML=tb('味方','#5ec8ff',planes.filter(t=>!isFoe(player,t)))+tb(
 // ---- ホーム / 格納庫 ----
 let PV=null,pvOn=0,pvT=0;
 function pickF(f){faction=f;$('fs').style.display='none';$('vs').style.display='flex';$('vserr').textContent='';const l=$('vl');l.innerHTML='';const list=byFac(f);
-list.forEach(v=>{const b=document.createElement('button');b.className='vc';b.dataset.id=v.id;const st=v.st;b.innerHTML=`<b>${esc(v.n)}</b><small>${v.k==='j'?'ジェット':'レシプロ'} ・ 最高速 ${Math.round(st.vmax*3.6)}km/h<br>機銃 ${st.dmg>=14?'機関砲':'機銃'} ${st.rof}発/s${st.msl?' ・ ミサイル'+st.msl:''}</small>`;b.onclick=()=>hang(v);l.appendChild(b)});hang(selSp&&list.find(x=>x.id===selSp.id)||list[0]);pvStart()}
+list.forEach(v=>{const b=document.createElement('button');b.className='vc';b.dataset.id=v.id;const st=v.st;b.innerHTML=`<b>${esc(v.n)}</b><small>${NATN[v.nat]||''} ・ ${v.k==='j'?'ジェット':'レシプロ'} ・ 最高速 ${Math.round(st.vmax*3.6)}km/h<br>機関砲 ${st.rof}発/s${st.msl?' ・ ミサイル'+st.msl:''}</small>`;b.onclick=()=>hang(v);l.appendChild(b)});hang(selSp&&list.find(x=>x.id===selSp.id)||list[0]);pvStart()}
 function hang(v){selSp=v;document.querySelectorAll('#vl .vc').forEach(b=>b.classList.toggle('on',b.dataset.id===v.id));const st=v.st,bar=(n,x,t)=>`<div class="sbar"><i>${n}</i><u><b style="width:${Math.round(cl(x,0,1)*100)}%"></b></u><span>${t}</span></div>`;
 $('vinfo').innerHTML=`<b style="font-size:14px">${esc(v.n)}</b>`+bar('速度',st.vmax/320,Math.round(st.vmax*3.6)+'km/h')+bar('旋回',st.rate[0]/1.3,'')+bar('ロール',st.rate[1]/4.4,'')+bar('火力',st.rof*st.dmg/450,Math.round(st.rof*st.dmg)+'/s')+bar('耐久',st.hp/125,st.hp)+bar('弾薬',st.ammo/1500,st.ammo);pvShow(v)}
 function pvInit(){if(PV)return PV;try{const c=$('pv'),r=new THREE.WebGLRenderer({canvas:c,antialias:true,alpha:true});r.setPixelRatio(Math.min(devicePixelRatio||1,2));r.setSize(420,250,false);const sc=new THREE.Scene();sc.add(new THREE.HemisphereLight(0xcfe0ff,0x554a38,1.1));const dl=new THREE.DirectionalLight(0xfff2dd,1.8);dl.position.set(-6,9,7);sc.add(dl);const d2=new THREE.DirectionalLight(0x88aaff,.6);d2.position.set(6,-3,-5);sc.add(d2);
 PV={r,sc,cam:new THREE.PerspectiveCamera(32,420/250,.1,200),m:null,a:.6}}catch(e){PV=null}return PV}
-function pvShow(v){if(!pvInit())return;try{if(PV.m)PV.sc.remove(PV.m);const m=buildPlane(v);PV.sc.add(m);PV.m=m;PV.rad=Math.max(v.wing.h*2,10)*1.35+4}catch(e){console.error(e)}}
+function pvShow(v){if(!pvInit())return;try{if(PV.m)PV.sc.remove(PV.m);const m=buildPlane(v);PV.sc.add(m);PV.m=m;PV.rad=Math.max(v.wing.h*2,v.prof[v.prof.length-1][0]-v.prof[0][0],10)*1.5+4}catch(e){console.error(e)}}
 function pvStart(){if(pvOn)return;pvOn=1;pvT=performance.now();const f=()=>{if(!pvOn||$('vs').style.display==='none'){pvOn=0;return}requestAnimationFrame(f);const n=performance.now(),dt=Math.min(.05,(n-pvT)/1000);pvT=n;if(!PV||!PV.m)return;PV.a+=dt*.5;PV.cam.position.set(Math.cos(PV.a)*PV.rad,PV.rad*.28,Math.sin(PV.a)*PV.rad);PV.cam.lookAt(0,0,0);try{PV.r.render(PV.sc,PV.cam)}catch(e){}};requestAnimationFrame(f)}
 function pvStop(){pvOn=0}
 function backHome(){pvStop();$('vs').style.display='none';$('fs').style.display='flex'}
