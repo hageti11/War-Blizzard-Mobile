@@ -2,7 +2,12 @@
 // README の手順で Firebase プロジェクトを作り、下の値を貼り付けてください。
 // (Firebase の Web 設定値は公開されても問題ない設計です。守るのは firestore.rules と認証です)
 // null のままだと「この端末だけのローカルモード」で動きます(開発・試用用)。
-window.FB_CFG = null;
+window.FB_CFG = {
+  apiKey: "AIzaSyDO-q78bl_n_VkOIo1_JdafrEo5BW_Qjdk",
+  authDomain: "war-blizzard-mobile.firebaseapp.com",
+  projectId: "war-blizzard-mobile",
+  appId: "1:365286772776:web:59560d220affd20b96651d"
+};
 /* 例:
 window.FB_CFG = {
   apiKey: "AIza...",
