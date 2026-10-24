@@ -1,6 +1,6 @@
 <!DOCTYPE html><html lang="ja"><head><meta charset="UTF-8">
 <meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
-<title>Sky Warbirds 3D</title>
+<title>War Blizzard Mobile v1.2</title>
 <style>
 :root{--ac:#5ec8ff;--bd:#2a5a7a;--pn:rgba(8,14,22,.8);--fg:#e8f2fa}
 *{box-sizing:border-box;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
@@ -58,10 +58,10 @@ input.sb{user-select:text;-webkit-user-select:text;cursor:text;width:230px;text-
 <canvas id="c"></canvas><div id="lbs"></div><div id="cx"></div><div id="nose"></div><div id="lead"></div><div id="lock"></div><div id="fl"></div>
 <div id="hud"><div>機体: <b id="tn" style="color:#5ec8ff">-</b></div><div>速度 <span id="spd">0</span>km/h | 高度 <span id="alt">0</span>m | 推力 <span id="thr">0</span>%</div><div>弾薬 <span id="amm">0</span> | ミサイル <span id="msl">0</span> | 撃墜 <span id="kl" style="color:#facc15">0</span></div><div class="bar"><b id="hpb"></b></div><div id="net" style="color:#9ca3af"></div></div>
 <canvas id="mm" width="150" height="150"></canvas><div id="tkt"></div><div id="kf"></div><div id="msg"></div><div id="warn"></div>
-<div id="hint">マウス:操縦(クリックで固定・固定できない時はドラッグ) / 左クリック・Space:射撃 / F:ミサイル / W・S:出力 / Shift:緊急出力 / C:視点 / 右クリック:ズーム / Tab:戦況 / Esc:設定</div>
-<div id="ctl"><div id="ts"><div id="tk"></div></div><div class="act"><div class="b" data-a="cam">視点</div><div class="b" data-a="boost">緊急<br>出力</div><div class="b" data-a="msl">ミサイル</div><div class="b" id="fb" data-k="fire">射撃</div></div></div>
+<div id="hint">マウス:操縦(クリックで固定・固定できない時はドラッグ) / 左クリック・Space:射撃 / F:ミサイル / B:爆弾 / W・S:出力 / Shift:緊急出力 / C:視点 / 右クリック:ズーム / Tab:戦況 / Esc:設定</div>
+<div id="ctl"><div id="ts"><div id="tk"></div></div><div class="act"><div class="b" data-a="cam">視点</div><div class="b" data-a="boost">緊急<br>出力</div><div class="b" data-a="msl">ミサイル</div><div class="b" data-k="bomb">爆弾</div><div class="b" id="fb" data-k="fire">射撃</div></div></div>
 
-<div id="au" class="ov" style="display:flex"><h1>Sky Warbirds 3D</h1><div class="sub" id="aus">認証を確認中…</div>
+<div id="au" class="ov" style="display:flex"><h1>War Blizzard Mobile <small style="font-size:11px;opacity:.7">v1.2</small></h1><div class="sub" id="aus">認証を確認中…</div>
 <div id="aform" style="display:none"><div class="tab"><button class="sb on" id="tl" onclick="authTab(0)">ログイン</button><button class="sb" id="tr" onclick="authTab(1)">新規登録</button></div>
 <div class="row"><input id="an" class="sb" maxlength="12" placeholder="表示名 (12文字まで)" style="display:none" autocomplete="nickname"></div>
 <div class="row"><input id="ai" class="sb" maxlength="16" placeholder="ユーザーID (英数字と_ 3〜16)" autocomplete="username" autocapitalize="none"></div>
@@ -69,10 +69,10 @@ input.sb{user-select:text;-webkit-user-select:text;cursor:text;width:230px;text-
 <div class="err" id="ae"></div><div class="row"><button class="sb" id="ago" onclick="authGo()">ログイン</button></div>
 <div class="sub" id="amode" style="margin-top:10px"></div></div></div>
 
-<div id="fs" class="ov"><h1>Sky Warbirds 3D</h1><div id="prof" class="sub" style="font-size:13px"></div>
-<div class="sub">陣営を選んで出撃。オンラインは同じルームコードの人と直接つながります(先に入った人が部屋の主)。</div>
+<div id="fs" class="ov"><h1>War Blizzard Mobile <small style="font-size:11px;opacity:.7">v1.2</small></h1><div id="prof" class="sub" style="font-size:13px"></div>
+<div class="sub">陣営を選んで出撃。飛行場から発進し、空戦と地上攻撃でチケットを奪え。オンラインは同じルームコードの人と直接つながります(先に入った人が部屋の主)。</div>
 <div class="row"><button class="sb" onclick="pickF(0)">日米英連合軍<br>(JP / US / UK)</button><button class="sb" onclick="pickF(1)">中露連合軍<br>(CN / RU)</button></div>
-<div class="row"><select id="diff" class="sb"><option value="0">AI難易度: 易</option><option value="1" selected>AI難易度: 普通</option><option value="2">AI難易度: 難</option></select><select id="mode" class="sb"><option value="0" selected>空中戦 (チーム戦・チケット制)</option><option value="1">ドッグファイト (1v1・3撃墜先取)</option></select></div>
+<div class="row"><select id="diff" class="sb"><option value="0">AI難易度: 易</option><option value="1" selected>AI難易度: 普通</option><option value="2">AI難易度: 難</option></select><select id="mode" class="sb"><option value="0" selected>空中戦 (WT式: 飛行場発進+地上攻撃・チケット制)</option><option value="1">ドッグファイト (1v1・3撃墜先取)</option></select><select id="mapsel" class="sb"></select></div>
 <div class="row"><select id="bf" class="sb"><option value="3">味方BOT: 3</option><option value="0">味方BOT: 0</option><option value="1">味方BOT: 1</option><option value="2">味方BOT: 2</option><option value="4" selected>味方BOT: 4</option><option value="5">味方BOT: 5</option></select><select id="be" class="sb"><option value="5" selected>敵BOT: 5</option><option value="0">敵BOT: 0</option><option value="2">敵BOT: 2</option><option value="3">敵BOT: 3</option><option value="4">敵BOT: 4</option><option value="6">敵BOT: 6</option></select></div>
 <div class="row"><input id="rc" class="sb" placeholder="ルームコード(任意)" maxlength="16" style="width:190px"><button class="sb" id="onb" onclick="toggleOn()">オンライン: OFF</button><button class="sb" id="qmb" onclick="toggleQ()">クイックマッチ: OFF</button></div>
 <div class="sub" id="olmsg"></div><div class="row"><button class="sb" onclick="openSet2()">⚙ 設定</button><button class="sb" onclick="logout()">ログアウト</button></div></div>
@@ -123,17 +123,26 @@ function renderProf(){const p=ACC.prof;$('prof').innerHTML=`<b>${esc(p.name)}</b
 const WS=4300;
 const _hh=(i,j)=>{let n=Math.imul(i,374761393)^Math.imul(j,668265263);n=Math.imul(n^(n>>>13),1274126177);return((n^(n>>>16))>>>0)/4294967296},
 _vn=(x,z)=>{const i=Math.floor(x),j=Math.floor(z),fx=x-i,fz=z-j,u=fx*fx*fx*(fx*(fx*6-15)+10),v=fz*fz*fz*(fz*(fz*6-15)+10),a=_hh(i,j),b=_hh(i+1,j),c=_hh(i,j+1),d=_hh(i+1,j+1);return a+(b-a)*u+(c-a)*v+(a-b-c+d)*u*v};
-const gh=(x,z)=>{const n=_vn(x*.0007+11,z*.0007)*.58+_vn(x*.0021,z*.0021+5)*.28+_vn(x*.007,z*.007)*.1+_vn(x*.02,z*.02)*.04;return Math.max(-40,(n-.53)*1000)};
+const MAPS=[
+{n:'青島平原',sl:.53,am:1000,ox:0,oz:0,mix:[0,0,0,0],sky:0xffffff,sea:0x1f6a92,fog:0xbcd6ea},
+{n:'砂漠の回廊',sl:.44,am:520,ox:40,oz:9,mix:[.86,.72,.46,.8],sky:0xfff0d8,sea:0x2a8a9a,fog:0xe6d2a8},
+{n:'ブリザード雪原',sl:.50,am:1250,ox:90,oz:33,mix:[.93,.96,1,.9],sky:0xd8e2ee,sea:0x2a4a62,fog:0xcdd9e6,ff:3800},
+{n:'珊瑚群島',sl:.61,am:900,ox:130,oz:70,mix:[.9,.85,.6,.25],sky:0xffffff,sea:0x14a0b8,fog:0xc4e4f0},
+{n:'火山列島',sl:.57,am:1300,ox:200,oz:15,mix:[.2,.17,.15,.75],sky:0xb89a90,sea:0x2a3a46,fog:0x8a7068,ff:5500},
+{n:'北海・氷洋',sl:.52,am:800,ox:260,oz:44,mix:[.55,.62,.66,.7],sky:0xaab6c0,sea:0x28485c,fog:0x9aa8b4,ff:5000},
+{n:'山岳渓谷',sl:.38,am:1500,ox:310,oz:120,mix:[.4,.36,.3,.5],sky:0xffffff,sea:0x1f6a92,fog:0xbcd6ea}];
+let MP=MAPS[0],AFD=[];$('mapsel').innerHTML=MAPS.map((m,i)=>`<option value="${i}">マップ: ${m.n}</option>`).join('');
+const gh=(x,z)=>{const n=_vn(x*.0007+11+MP.ox,z*.0007+MP.oz)*.58+_vn(x*.0021+MP.ox,z*.0021+5)*.28+_vn(x*.007,z*.007)*.1+_vn(x*.02,z*.02)*.04;let h=Math.max(-40,(n-MP.sl)*MP.am);for(const a of AFD){const d=Math.hypot(x-a.x,z-a.z);if(d<900){const k=d<520?1:1-(d-520)/380,k2=k*k*(3-2*k);h+=(a.h-h)*k2}}return h};
 const R=new THREE.WebGLRenderer({canvas:$('c'),antialias:true});R.setPixelRatio(Math.min(devicePixelRatio,2)*SET.res);R.toneMapping=THREE.ACESFilmicToneMapping;R.toneMappingExposure=1.15;
 const S=new THREE.Scene(),HZ=0xbcd6ea;S.background=new THREE.Color(HZ);S.fog=new THREE.Fog(HZ,1800,8200);
 const cam=new THREE.PerspectiveCamera(65,1,1,12000);
 function rsz(){R.setSize(innerWidth,innerHeight);cam.aspect=innerWidth/innerHeight;cam.updateProjectionMatrix()}addEventListener('resize',rsz);addEventListener('orientationchange',()=>setTimeout(rsz,250));rsz();
 S.add(new THREE.HemisphereLight(0xdfeaff,0x5a6a48,.95));const sun=new THREE.DirectionalLight(0xfff0d0,1.5);sun.position.set(2500,3000,1200);S.add(sun);
-{const G=new THREE.PlaneGeometry(2*WS+800,2*WS+800,200,200);G.rotateX(-PI/2);const q=G.attributes.position,cs=new Float32Array(q.count*3);
+let TER=null;function buildTerrain(){if(TER){S.remove(TER);TER.geometry.dispose()}const G=new THREE.PlaneGeometry(2*WS+800,2*WS+800,200,200);G.rotateX(-PI/2);const q=G.attributes.position,cs=new Float32Array(q.count*3);
 for(let i=0;i<q.count;i++){const x=q.getX(i),z=q.getZ(i),h=gh(x,z);q.setY(i,h);const n=_vn(x*.01,z*.01);let r,g,b;
 if(h<3){r=.76;g=.7;b=.5}else if(h<14){r=.7+n*.05;g=.66;b=.46}else if(h<140){r=.2+n*.12;g=.42+n*.14;b=.16}else if(h<260){r=.3+n*.1;g=.38+n*.08;b=.2}else if(h<360){r=.42+n*.08;g=.4+n*.08;b=.36}else{r=.9;g=.92;b=.95}
-if(h<0){const k=cl(-h/30,0,1);r=r*(1-k)+.12*k;g=g*(1-k)+.28*k;b=b*(1-k)+.38*k}cs[i*3]=r;cs[i*3+1]=g;cs[i*3+2]=b}
-G.setAttribute('color',new THREE.BufferAttribute(cs,3));G.computeVertexNormals();S.add(new THREE.Mesh(G,new THREE.MeshLambertMaterial({vertexColors:true})))}
+if(h<0){const k=cl(-h/30,0,1);r=r*(1-k)+.12*k;g=g*(1-k)+.28*k;b=b*(1-k)+.38*k}if(h>=2&&MP.mix[3]){const m=MP.mix,k=m[3]*(h>400?.35:1);r=r*(1-k)+m[0]*k;g=g*(1-k)+m[1]*k;b=b*(1-k)+m[2]*k}cs[i*3]=r;cs[i*3+1]=g;cs[i*3+2]=b}
+G.setAttribute('color',new THREE.BufferAttribute(cs,3));G.computeVertexNormals();TER=new THREE.Mesh(G,new THREE.MeshLambertMaterial({vertexColors:true}));S.add(TER)}buildTerrain();
 const sea=new THREE.Mesh(new THREE.PlaneGeometry(2*WS+4000,2*WS+4000),new THREE.MeshPhongMaterial({color:0x1f6a92,transparent:true,opacity:.82,shininess:90,specular:0xaaccdd}));sea.rotation.x=-PI/2;sea.position.y=0;S.add(sea);
 const sky=new THREE.Mesh(new THREE.SphereGeometry(10500,24,14),new THREE.MeshBasicMaterial({vertexColors:true,side:THREE.BackSide,fog:false,depthWrite:false}));sky.frustumCulled=false;S.add(sky);
 {const a=new THREE.Color(0x2f68b8),b=new THREE.Color(HZ),q=sky.geometry.attributes.position,cs=new Float32Array(q.count*3),c=new THREE.Color();for(let k=0;k<q.count;k++){c.copy(b).lerp(a,Math.pow(cl(q.getY(k)/10500,0,1),.5));cs[k*3]=c.r;cs[k*3+1]=c.g;cs[k*3+2]=c.b}sky.geometry.setAttribute('color',new THREE.BufferAttribute(cs,3))}
@@ -256,7 +265,23 @@ AP('mig31','MiG-31BM フォックスハウンド','ru',1,[0x8c9399,0x7a8187,0x9c
 AP('mig35','MiG-35 ファルクラムF','ru',1,[0x777f87,0x686f77,0x868e96,0x9ea5ab],AF.m35,ST(318,60,200,115,[1.3,5,.55],26,9,700,6,6.8,.23)),
 AP('su25sm','Su-25SM フロッグフット','ru',1,[0x5e6b48,0x7d7a50,0x42503a,0x9fb0c0],AF.s25,ST(210,44,140,220,[.95,2.6,.45],26,16,900,2,8.2,.1))
 ];
-const SPECS={};SPEC.forEach(s=>SPECS[s.id]=s);const byFac=f=>SPEC.filter(s=>s.fac===f);
+const BM=(b,k,rk,o)=>{const a=AF[b];return Object.assign({},a,{prof:a.prof.map(q=>[q[0]*k,q[1]*rk]),can:Object.assign({},a.can,{z:a.can.z*k,l:a.can.l*k}),gpH:[[0,-.3,a.gpH[0][2]*k]],ord:[],inl:[]},o)};
+const NB=(z0,z1,r)=>[{x:2.2,y:-.6,z0,z1,r,m:1},{x:3.9,y:-.6,z0,z1,r,m:1}];
+AF.b1=BM('f15',2.4,1.5,{wing:W(13,12,3,30,-3,-.3,.45,0),hs:W(5,6,2,45,-17,0,.25),fins:[FN(5,7,3,40,-14,1,0,0)],nac:NB(-14,-6,1.1)});
+AF.b2=BM('f22',.6,2.4,{wing:W(24,10,2,35,-2,-.2,.55,0),hs:undefined,fins:[],nac:[{x:3,y:0,z0:-5,z1:-1,r:.9,m:1},{x:5,y:0,z0:-5,z1:-1,r:.9,m:1}]});
+AF.b3=BM('typ',1.9,1.2,{wing:W(10.5,15,2,52,-4,-.2,.45,0),xw:[],fins:[FN(5,6,2.5,45,-11,1.2,0,0)],nac:[{x:1.6,y:-.1,z0:-14,z1:-6,r:1.1,m:1},{x:3.5,y:-.1,z0:-14,z1:-6,r:1.1,m:1}]});
+AF.b4=BM('a10',2.2,1.4,{wing:W(15,6,3,6,-1,.5,.4,.02),hs:W(6,4,2,12,-16,.6,.2),fins:[FN(5,6,2.5,30,-15,1,0,0)],nac:[{x:3,y:0,z0:-4,z1:3,r:.9,m:1,fr:1},{x:6.5,y:0,z0:-4,z1:3,r:.9,m:1,fr:1}]});
+const BST=(v,h,rof)=>ST(v,70,v*.66,h,[.55,2,.35],rof||10,9,200,0,13,.08);
+[AP('b1b','B-1B ランサー (爆撃機)','us',0,[0x6f757b,0x61676d,0x7e848a,0x9aa0a6],AF.b1,BST(300,380)),
+AP('b2a','B-2A スピリット (爆撃機)','us',0,[0x4c5056,0x404449,0x5a5e64,0x73777d],AF.b2,BST(280,330)),
+AP('vulc','ヴァルカン B.2 (爆撃機)','uk',0,[0x8d949a,0x7b8288,0x9ca2a8,0xb2b8be],AF.b3,BST(290,320)),
+AP('p1','P-1 哨戒爆撃機 (爆装)','jp',0,[0x6d7c8b,0x5b6a79,0x7d8c9b,0xa0aeba],AF.b4,BST(270,300)),
+AP('tu160','Tu-160 ブラックジャック (爆撃機)','ru',1,[0xcfd6dc,0xb8c0c7,0xdde3e8,0xeef2f5],AF.b1,BST(310,400)),
+AP('tu22','Tu-22M3 バックファイア (爆撃機)','ru',1,[0x8a929a,0x778088,0x9aa2aa,0xb0b8c0],AF.b3,BST(300,330)),
+AP('h6k','H-6K (爆撃機)','cn',1,[0x7d8790,0x6b757e,0x8d97a0,0xa6b0b8],AF.b4,BST(260,320))
+].forEach((b,i)=>{b.bm=1;b.bn=[30,24,21,12,40,24,20][i];SPEC.push(b)});
+({a10c:10,su25sm:10,tor4:8,har9:4,jh7:8,f15ex:6,f18e:4,f2a:4,f4ej:4,f16c:4,su35s:4,j16:6,hawk2:2,j10c:2,mig35:2,f15j:2}),SPEC.forEach(x=>{const B={a10c:10,su25sm:10,tor4:8,har9:4,jh7:8,f15ex:6,f18e:4,f2a:4,f4ej:4,f16c:4,su35s:4,j16:6,hawk2:2,j10c:2,mig35:2,f15j:2};if(B[x.id])x.bn=B[x.id]});
+const SPECS={};SPEC.forEach(s=>SPECS[s.id]=s);const byFac=(f,all)=>SPEC.filter(s=>s.fac===f&&(all||!s.bm));
 // ============================ 機体モデル ============================
 const MC={},DEC={};
 const hexs=c=>'#'+c.toString(16).padStart(6,'0');
@@ -343,9 +368,9 @@ const K={up:0,dn:0,fire:0,boost:0,zoom:0},IN={thr:.75},TIX=[30,30],ST5={kills:0,
 const myT=()=>faction;
 const tm=p=>p.team;
 const isFoe=(a,b)=>MODE===1&&ON?a!==b:a.team!==b.team;
-function spawnPoint(team,i){const d=team===0?1:-1;return{pos:new V3(-d*(2900+Math.random()*300),650+Math.random()*350,(Math.random()-.5)*1500+(i||0)*40),dir:new V3(d,0,0)}}
+function spawnPoint(team,i){const d=team===0?1:-1;if(AFD.length){const L=AFD.filter(a=>a.t===team),a=L[Math.random()<.6?0:Math.floor(Math.random()*L.length)];return{pos:new V3(a.x-d*230+(i||0)*6%60,a.h+9,a.z+((i||0)%5-2)*34+(Math.random()-.5)*8),dir:new V3(d,.09,0)}}return{pos:new V3(-d*(2900+Math.random()*300),650+Math.random()*350,(Math.random()-.5)*1500+(i||0)*40),dir:new V3(d,0,0)}}
 function mkPlane(sp,team,opt){opt=opt||{};const g=modelOf(sp);S.add(g);const sp0=spawnPoint(team,opt.i),pos=opt.pos||sp0.pos,dir=opt.dir||sp0.dir;
-const p={uid:uidc++,s:sp,team,g,parts:partsOf(g),pos:pos.clone(),q:new Qn().setFromUnitVectors(new V3(0,0,1),dir.clone().normalize()),spd:sp.st.vmax*.7,thr:.75,hp:sp.st.hp,maxhp:sp.st.hp,alive:true,vel:new V3(),ammo:sp.st.ammo,msl:sp.st.msl,gacc:0,mcd:0,eng:100,wing:100,fire:false,isPlayer:!!opt.pl,bot:!!opt.bot,rem:!!opt.rem,name:opt.name||sp.n,inp:{p:0,r:0,y:0},boost:0,bst:8,firing:false,lockT:0,lockTg:null,dmgBy:new Map(),k5:0,d5:0,tdt:0,oob:0,sm:0,fallT:0,sn:[]};
+const p={uid:uidc++,s:sp,team,g,parts:partsOf(g),pos:pos.clone(),q:new Qn().setFromUnitVectors(new V3(0,0,1),dir.clone().normalize()),spd:sp.st.vmax*.7,thr:.75,hp:sp.st.hp,maxhp:sp.st.hp,alive:true,vel:new V3(),ammo:sp.st.ammo,msl:sp.st.msl,bomb:sp.bn||0,bcd:0,gacc:0,mcd:0,eng:100,wing:100,fire:false,isPlayer:!!opt.pl,bot:!!opt.bot,rem:!!opt.rem,name:opt.name||sp.n,inp:{p:0,r:0,y:0},boost:0,bst:8,firing:false,lockT:0,lockTg:null,dmgBy:new Map(),k5:0,d5:0,tdt:0,oob:0,sm:0,fallT:0,sn:[]};
 g.position.copy(p.pos);g.quaternion.copy(p.q);g.scale.setScalar(1.25);p.hr=sp.st.hr*1.25;
 const lb=document.createElement('div');lb.className='lb';lb.innerHTML='<span></span><i><b></b></i>';$('lbs').appendChild(lb);p.lb=lb;planes.push(p);return p}
 function rmPlane(p){S.remove(p.g);if(p.lb)p.lb.remove();planes=planes.filter(x=>x!==p)}
@@ -382,7 +407,7 @@ puff(b.p.x,b.p.y,b.p.z,0,0,0,.35,5,0xffd060,2,.9,true);
 if(isAuth(t)&&!(t.bot&&b.own.rem&&!b.own.bot))dmg(t,b.dmg*(.8+Math.random()*.4),b.own);
 else if(t.bot&&t.rem&&b.own===player&&ON)ON.net.emit('bh',{i:t.bid,d:+b.dmg.toFixed(1)});
 if(b.own===player)hitMark(t);break}}
-if(dead){bul.splice(i,1)}}
+if(!dead&&GT.length)dead=gtHit(b);if(dead){bul.splice(i,1)}}
 BI.count=bul.length;for(let i=0;i<bul.length;i++){const b=bul[i];DM.position.copy(b.p);DM.lookAt(b.p.x+b.v.x,b.p.y+b.v.y,b.p.z+b.v.z);DM.updateMatrix();BI.setMatrixAt(i,DM.matrix)}BI.instanceMatrix.needsUpdate=true}
 function hitMark(t){const e=$('cx');e.style.borderColor='#f87171';e.style.transform='scale(1.5)';setTimeout(()=>{e.style.borderColor='#fff';e.style.transform=''},90)}
 // ---- ミサイル ----
@@ -491,19 +516,71 @@ if(!t){if(!s.a)continue;const sp=SPECS[s.v];if(!sp)continue;t=mkPlane(sp,MODE===
 if(typeof s.hp==='number')t.hp=s.hp}
 for(const[id,t]of o.rem)if(!seen.has(id)){if(t.alive)kill(t,null,'離脱',1);o.rem.delete(id)}
 const now=performance.now();for(const[id,t]of o.bots)if(now-(t.bseen||now)>5000){rmPlane(t);o.bots.delete(id)}}
+// ============================ v1.2: 飛行場 / 地上目標 / 爆弾 ============================
+const GT=[],BMB=[],_c=new V3(),ZA=new V3(0,0,1),TCOL=[0x4a6a9a,0xa04a40];
+const bxm=(w,h,l,c,x,y,z)=>{const m=new THREE.Mesh(new THREE.BoxGeometry(w,h,l),new THREE.MeshLambertMaterial({color:c}));m.position.set(x||0,y||0,z||0);return m};
+const GTY={
+tank:{n:'戦車',hp:70,r:6,val:1,arm:.6,mv:5,mk:(g,c)=>g.add(bxm(4,1.6,7,c,0,1,0),bxm(2.4,1.1,2.8,c,0,2.3,-.4),bxm(.4,.4,4.5,0x222222,0,2.4,3))},
+truck:{n:'補給車列',hp:35,r:5,val:1,arm:1,mv:7,mk:(g,c)=>g.add(bxm(2.6,2.4,7,c,0,1.6,0),bxm(2.6,1.8,2,0x333333,0,1.4,3.6))},
+inf:{n:'地上部隊',hp:25,r:11,val:0,arm:1.2,mv:1.5,mk:(g,c)=>{for(let i=0;i<6;i++)g.add(bxm(1,1.8,1,c,(i%3-1)*5,.9,(i>>1)*4-4))}},
+aa:{n:'対空砲',hp:55,r:5,val:2,arm:.8,wd:3.2,range:1500,mk:(g,c)=>g.add(bxm(4,1,4,c,0,.5,0),bxm(1,1.2,1,0x333333,0,1.6,0),bxm(.3,.3,3,0x222222,-.6,2.4,1.5),bxm(.3,.3,3,0x222222,.6,2.4,1.5))},
+sam:{n:'SAM発射機',hp:80,r:7,val:3,arm:.7,sm:1,range:2800,mk:(g,c)=>g.add(bxm(3,1.2,8,c,0,1,0),bxm(1.2,.8,6,0xcccccc,0,2.6,0),bxm(2.6,.4,2.6,0x333333,0,1.4,-3))},
+ship:{n:'駆逐艦',hp:550,r:28,val:8,arm:.25,wd:3.8,sm:1,range:2000,mv:6,sea:1,mk:(g,c)=>g.add(bxm(14,5,90,0x6a7078,0,3,0),bxm(9,7,22,c,0,8,-8),bxm(3,10,3,0x444a50,0,15,-8),bxm(5,3,12,0x555b61,0,6,26))},
+hq:{n:'司令部',hp:600,r:22,val:12,arm:.25,mk:(g,c)=>g.add(bxm(34,14,26,0x8a8f94,0,7,0),bxm(18,8,14,c,0,18,0),bxm(2,16,2,c,10,30,0))},
+radar:{n:'レーダー',hp:150,r:10,val:3,arm:.6,mk:(g,c)=>g.add(bxm(8,6,8,0x888d92,0,3,0),bxm(14,1.5,1.5,c,0,9,0),bxm(1.5,9,1.5,0x555,0,5,0))},
+hangar:{n:'格納庫',hp:260,r:20,val:3,arm:.35,mk:(g,c)=>g.add(bxm(40,12,28,0x7a7f84,0,6,0),bxm(42,1.5,30,c,0,12.6,0))},
+fuel:{n:'燃料庫',hp:120,r:14,val:2,arm:.5,mk:(g,c)=>{for(let i=0;i<3;i++)g.add(bxm(9,9,9,0xb0b4b8,(i-1)*13,4.5,0))}}};
+function mkGT(ty,team,x,z,ang){const T=GTY[ty],g=new THREE.Group();T.mk(g,TCOL[team]);if(T.val>=3)g.add(bxm(1.4,110,1.4,TCOL[team],0,70,0));S.add(g);const h=T.sea?.5:Math.max(0,gh(x,z));g.position.set(x,h,z);g.rotation.y=ang||0;
+const o={isGT:1,ty,name:T.n,team,g,pos:new V3(x,h,z),vel:new V3(),hp:T.hp,maxhp:T.hp,r:T.r,val:T.val,arm:T.arm,alive:true,aa:T.wd?1:0,wd:T.wd||0,sm:T.sm||0,range:T.range||0,fcd:Math.random()*2,mcd:6+Math.random()*8,burst:0,msl:9,q:new Qn(),spd:0,s:{k:'j'},k5:0,dmgBy:new Map(),burn:0,vx:T.mv?Math.sin(ang||0)*T.mv:0,vz:T.mv?Math.cos(ang||0)*T.mv:0};GT.push(o);return o}
+function mkAirfield(a){const c=TCOL[a.t],g=new THREE.Group();g.position.set(a.x,a.h,a.z);g.add(bxm(560,.5,34,0x2c2f33,0,.3,0),bxm(560,.6,2,0xeeeeee,0,.5,0),bxm(110,.4,70,0x40444a,0,.25,-80),bxm(4,26,4,c,-290,13,-20),bxm(14,9,.5,c,-283,22,-20));for(let i=-5;i<=5;i++)g.add(bxm(18,.6,3,0xffffff,i*50,.6,0));S.add(g)}
+const rng=(a,b)=>[Math.min(a,b),Math.max(a,b)];
+function landPos(xr,zr,sea){for(let i=0;i<40;i++){const x=xr[0]+Math.random()*(xr[1]-xr[0]),z=zr[0]+Math.random()*(zr[1]-zr[0]),h=gh(x,z);if(sea?h<-6:h>4&&h<300)return[x,z]}return null}
+function setupWorld(){MP=MAPS[ON?0:Math.max(0,+$('mapsel').value||0)];AFD=[];for(const t of[0,1]){const d=t?-1:1;AFD.push({x:-d*2800,z:0,t,h:20,d},{x:-d*2100,z:-1700,t,h:26,d},{x:-d*2100,z:1700,t,h:26,d})}
+buildTerrain();sea.material.color.setHex(MP.sea);sky.material.color.setHex(MP.sky);S.background.setHex(MP.fog);S.fog.color.setHex(MP.fog);S.fog.far=MP.ff||8200;S.fog.near=MP.ff?300:1800;AFD.forEach(mkAirfield);
+if(ON||MODE===1)return;
+for(const t of[0,1]){const d=t?-1:1,a=AFD[t*3],P=(ty,x,z)=>mkGT(ty,t,x,z,d*PI/2),Q=(ty,xr,zr,n,sea)=>{for(let i=0;i<n;i++){const q=landPos(xr,zr,sea);q&&P(ty,q[0],q[1])}};
+P('hq',a.x-d*60,220);[-150,0,150].forEach(o=>P('hangar',a.x+o,-190));P('radar',a.x+d*200,180);P('fuel',a.x-d*200,200);P('fuel',a.x-d*250,150);
+[0,1,2,3].forEach(i=>P('aa',a.x+(i-1.5)*150,(i&1?1:-1)*300));[-1,1].forEach(k=>P('sam',a.x+d*120,k*330));
+for(const f of[AFD[t*3+1],AFD[t*3+2]]){const k=f.z>0?1:-1;P('hangar',f.x,f.z+130*k);P('aa',f.x+60,f.z-120*k);P('radar',f.x-100,f.z+130*k);P('sam',f.x+120,f.z+60*k)}
+Q('tank',rng(-d*700,-d*1900),[-2400,2400],6);Q('truck',rng(-d*700,-d*1900),[-2400,2400],3);Q('inf',rng(-d*300,-d*900),[-2000,2000],3);Q('aa',rng(-d*600,-d*1800),[-2400,2400],3);Q('ship',rng(-d*900,-d*3800),[-3800,3800],2,1)}}
+function gtDmg(g,d,own){if(!g.alive)return;g.hp-=d;g.lastOwn=own;if(own===player)ST5.dmg+=d*.4;if(g.hp>0)return;g.alive=false;g.burn=14;explode(g.pos.x,g.pos.y+3,g.pos.z,true);g.g.scale.y=.45;g.g.traverse(o=>{if(o.material)o.material.color.multiplyScalar(.25)});TIX[g.team]=Math.max(0,TIX[g.team]-g.val);
+if(own&&isFoe(own,g)){own.k5=(own.k5||0)+1;feed(own,g);if(own===player){ST5.gk=(ST5.gk||0)+1;msg('地上目標撃破: '+g.name+(g.val?' (敵チケット-'+g.val+')':''))}}}
+function gtHit(b){for(const g of GT){if(!g.alive||g.team===b.team)continue;const c=g.pos;if(Math.abs(c.x-b.p.x)>60||Math.abs(c.z-b.p.z)>60)continue;_c.set(c.x,c.y+g.r*.4,c.z);if(segDist(b.pp,b.p,_c)<g.r){puff(b.p.x,b.p.y,b.p.z,0,2,0,.4,5,0xffc060,2,.9,true);gtDmg(g,b.dmg*g.arm,b.own);if(b.own===player)hitMark(g);return true}}return false}
+function gtStep(dt){const pl=planes.filter(p=>p.alive&&!p.gone);
+for(const g of GT){if(!g.alive){if(g.burn>0){g.burn-=dt;if(Math.random()<dt*5)puff(g.pos.x,g.pos.y+4,g.pos.z,0,6,0,2.4,11,0x222222,2.2,.6);if(g.ty==='ship'){g.pos.y-=dt*1.5;g.g.position.y=g.pos.y}}continue}
+if(g.vx||g.vz){const nx=g.pos.x+g.vx*dt,nz=g.pos.z+g.vz*dt,h=gh(nx,nz),sea=GTY[g.ty].sea;if(sea?(h>-4||Math.abs(nx)>WS-400||Math.abs(nz)>WS-400):(h<2||Math.abs(nx)>WS-300)){g.vx=g.vz=0}else{g.pos.set(nx,sea?.5:h,nz);g.g.position.copy(g.pos)}}
+if(!g.aa&&!g.sm)continue;g.fcd-=dt;g.mcd-=dt;let t=null,bd=g.range;for(const p of pl){if(p.team===g.team)continue;const d=p.pos.distanceTo(g.pos);if(d<bd){bd=d;t=p}}if(!t)continue;
+if(g.aa&&g.fcd<=0&&bd<1500&&bul.length<BMAX-12){if(g.burst<=0)g.burst=7;g.burst--;g.fcd=g.burst>0?.1:2.4;const T=bd/760,a=t.pos.clone().addScaledVector(t.vel,T);a.y+=T*T*2.9;const o=g.pos.clone();o.y+=3;const d=a.sub(o).normalize(),sp=.018+(2-DF)*.006+(g.ty==='ship'?.01:0);d.x+=(Math.random()-.5)*sp;d.y+=(Math.random()-.5)*sp;d.z+=(Math.random()-.5)*sp;d.normalize();bul.push({p:o.clone(),pp:o.clone(),v:d.multiplyScalar(760),own:g,life:2,dmg:g.wd,team:g.team})}
+if(g.sm&&g.mcd<=0&&bd>500&&bd<2800&&t.pos.y>g.pos.y+80){g.q.setFromUnitVectors(ZA,t.pos.clone().sub(g.pos).normalize());g.mcd=0;g.msl=9;launchMsl(g,t);g.mcd=15;if(t===player)msg('⚠ 地対空ミサイル接近! 回避せよ')}}}
+const bGeo=new THREE.CylinderGeometry(.3,.3,1.8,8).rotateX(PI/2),bMat=new THREE.MeshLambertMaterial({color:0x444a40});
+function dropBomb(p){if(!p.alive)return;if(p.bomb<=0){if(p.isPlayer&&p.bcd<=0){msg('爆弾がありません');p.bcd=1.5}return}if(p.bcd>0)return;p.bomb--;p.bcd=p.s.bn>=12?.22:.45;const m=new THREE.Mesh(bGeo,bMat);S.add(m);const o=p.pos.clone().add(new V3(p.bomb&1?1.4:-1.4,-1.8,0).applyQuaternion(p.q));m.position.copy(o);BMB.push({m,p:o,v:p.vel.clone().add(new V3(0,-2,0)),own:p});sfx(260,.35,.12,'square')}
+function gwStep(dt){for(const p of planes)if(p.bcd>0)p.bcd-=dt;const p=player;if(K.bomb&&p.alive)dropBomb(p);
+for(let i=BMB.length-1;i>=0;i--){const b=BMB[i];b.v.y-=9.8*dt;b.p.addScaledVector(b.v,dt);b.m.position.copy(b.p);b.m.quaternion.setFromUnitVectors(ZA,_c.copy(b.v).normalize());
+if(b.p.y<=Math.max(0,gh(b.p.x,b.p.z))){explode(b.p.x,b.p.y,b.p.z,true);for(const g of GT){if(!g.alive||g.team===b.own.team)continue;const d=g.pos.distanceTo(b.p),R2=75+g.r;if(d<R2)gtDmg(g,(1-d/R2)*520+30,b.own)}S.remove(b.m);BMB.splice(i,1)}}
+if(GT.length)gtStep(dt);
+if(p.alive){let near=0;for(const a of AFD)if(a.t===p.team&&Math.hypot(a.x-p.pos.x,a.z-p.pos.z)<420&&p.pos.y<a.h+70&&p.spd<p.s.st.vs*1.5)near=1;
+if(near){p.rsT=(p.rsT||0)+dt;if(!gwStep.rs){gwStep.rs=1;msg('🛠 飛行場上空: 補給・修理中…')}p.hp=Math.min(p.maxhp,p.hp+p.maxhp*.08*dt);if(p.rsT>4){p.rsT=0;p.ammo=p.s.st.ammo;p.msl=p.s.st.msl;p.bomb=p.s.bn||0;p.hp=p.maxhp;p.fire=false;p.eng=100;p.wing=100;msg('✅ 補給・修理完了');gwStep.rs=0}}else{p.rsT=0;gwStep.rs=0}}}
+{const e=document.createElement('div');e.id='gx';e.style.cssText='position:fixed;top:calc(env(safe-area-inset-top,0px) + 112px);left:8px;font-size:11px;line-height:1.5;background:var(--pn);border:1px solid #2a4a5a;border-radius:6px;padding:4px 8px;z-index:10;pointer-events:none;display:none';document.body.appendChild(e);
+const q=document.createElement('div');q.id='bs';q.style.cssText='position:fixed;left:0;top:0;width:22px;height:22px;margin:-11px;border:2px solid #facc15;transform:rotate(45deg);pointer-events:none;z-index:6;display:none';document.body.appendChild(q)}
+function gwHud(dt){gwHud.t=(gwHud.t||0)-dt;const p=player,e=$('gx'),bs=$('bs');
+if(gwHud.t<=0){gwHud.t=.2;let h=`💣 爆弾 <b>${p.bomb}</b> <small>(B / 爆弾ボタン)</small>`;if(GT.length)h+=`<br>🎯 敵地上目標 <b style="color:#f87171">${GT.filter(g=>g.alive&&g.team!==p.team).length}</b> / 味方 <b style="color:#5ec8ff">${GT.filter(g=>g.alive&&g.team===p.team).length}</b>`;
+let da=1e9;for(const a of AFD)if(a.t===p.team)da=Math.min(da,Math.hypot(a.x-p.pos.x,a.z-p.pos.z));if(AFD.length)h+=`<br>🛬 友軍飛行場 ${Math.round(da)}m <small>(低速・低空で補給)</small>`;e.innerHTML=h;e.style.display='block'}
+if(p.alive&&p.bomb>0){const hh=Math.max(1,p.pos.y-Math.max(0,gh(p.pos.x,p.pos.z))),vy=p.vel.y,t=(vy+Math.sqrt(vy*vy+19.6*hh))/9.8,x=p.pos.x+p.vel.x*t,z=p.pos.z+p.vel.z*t;_c.set(x,Math.max(0,gh(x,z)),z).project(cam);if(_c.z<1&&_c.z>0){bs.style.display='block';bs.style.left=(_c.x*.5+.5)*innerWidth+'px';bs.style.top=(-_c.y*.5+.5)*innerHeight+'px'}else bs.style.display='none'}else bs.style.display='none'}
+function gmDraw(hd,R_,p){const ca=Math.cos(hd),sa=Math.sin(hd),pt=(o,w,h,c)=>{const dx=o.x-p.pos.x,dz=o.z-p.pos.z,X=(dx*ca-dz*sa)/R_*75,Y=-(dx*sa+dz*ca)/R_*75;if(Math.hypot(X,Y)>72)return;mmc.fillStyle=c;mmc.fillRect(75+X-w/2,75+Y-h/2,w,h)};
+for(const a of AFD)pt(a,10,4,a.t===p.team?'#9bdcff':'#ffb0a8');for(const g of GT)if(g.alive){const s=g.val>=3?4.5:2.2;pt(g.pos,s,s,g.team===p.team?'#5ec8ff':'#f87171')}}
 // ============================ 戦闘管理 ============================
 let RSQ=0,spec2=null,respT=0,lastSel=null;
 function msg(t){const m=$('msg');m.textContent=t;m.style.opacity=1;clearTimeout(msg.t);msg.t=setTimeout(()=>m.style.opacity=0,2000)}
 function respStart(){respT=5;$('rzv').style.display='block';rzDraw()}
 function rzDraw(){const e=$('rzv');if(over){e.style.display='none';return}let h=`<div style="font-weight:700;margin-bottom:4px">撃墜されました — 再出撃する機体を選択 ${respT>0?'(あと '+Math.ceil(respT)+'秒)':''}</div>`;if(TIX[player.team]<=0&&MODE===0)h+='<div class="sub">チケットが尽きました</div>';e.innerHTML=h;
-byFac(faction).forEach(sp=>{const b=document.createElement('button');b.className='sb';b.textContent=sp.n;if(respT>0)b.disabled=true;b.onclick=()=>respawn(sp);e.appendChild(b)})}
+byFac(faction,1).forEach(sp=>{const b=document.createElement('button');b.className='sb';b.textContent=sp.n;if(respT>0)b.disabled=true;b.onclick=()=>respawn(sp);e.appendChild(b)})}
 function respawn(sp){if(over||player.alive||respT>0)return;if(MODE===0&&TIX[faction]<=0)return;const old=player;rmPlane(old);const t=mkPlane(sp,faction,{pl:1,name:NICK});player=t;selSp=sp;t.lb.style.display='none';camYaw=Math.atan2(new V3(0,0,1).applyQuaternion(t.q).z,new V3(0,0,1).applyQuaternion(t.q).x);camPitch=0;IN.thr=.75;RSQ++;$('rzv').style.display='none';$('tn').textContent=sp.n;msg('再出撃: '+sp.n);t.recoil=0}
 async function launch(){if(!selSp)return;$('vs').style.display='none';pvStop();DF=+$('diff').value;MODE=+$('mode').value;
 if(wantOn){const ok=await goOnline();if(!ok){$('vserr').textContent=$('olmsg').textContent;$('vs').style.display='flex';pvStart();return}}
 if(ON&&MODE===1&&false){}
 planes.forEach(p=>{S.remove(p.g);p.lb.remove()});planes=[];bots=[];bul.length=0;MIS.forEach(m=>S.remove(m.g));MIS.length=0;ON&&(ON.hb=null);
-ST5.kills=ST5.deaths=ST5.dmg=ST5.assist=0;kills=0;$('kl').textContent=0;TIX[0]=TIX[1]=MODE===1?3:30;tmat=0;over=false;RSQ++;
-const sp0=selSp;player=mkPlane(sp0,faction,{pl:1,name:NICK});player.lb.style.display='none';
+ST5.kills=ST5.deaths=ST5.dmg=ST5.assist=ST5.gk=0;kills=0;$('kl').textContent=0;TIX[0]=TIX[1]=MODE===1?3:30;tmat=0;over=false;RSQ++;
+setupWorld();const sp0=selSp;player=mkPlane(sp0,faction,{pl:1,name:NICK});player.lb.style.display='none';
 const dir=new V3(0,0,1).applyQuaternion(player.q);camYaw=Math.atan2(dir.z,dir.x);camPitch=0;IN.thr=.75;
 if(!ON){const nf=MODE===1?0:+$('bf').value,ne=MODE===1?1:+$('be').value,mkB=(f,n)=>{const P=byFac(f);for(let i=0;i<n;i++){const sp=P[Math.floor(Math.random()*P.length)],t=mkPlane(sp,f,{bot:1,i:i*3});t.lb.firstChild.textContent='[BOT '+(f===faction?'味方':'敵')+'] '+sp.n;bots.push(t)}};mkB(faction,nf);mkB(1-faction,ne)}
 else if(MODE===1){player.team=faction;}
@@ -512,9 +589,9 @@ run=true;last=performance.now();setTimeout(()=>msg(MODE===1?'ドッグファイ�
 function endCheck(){if(over)return;let end=0;if(MODE===1){if(TIX[1-faction]<=0)end=1;else if(TIX[faction]<=0)end=2}else{if(TIX[0]<=0)end=faction===0?2:1;else if(TIX[1]<=0)end=faction===1?2:1;else if(tmat>=T0)end=TIX[faction]===TIX[1-faction]?3:TIX[faction]>TIX[1-faction]?1:2}
 if(end){over=true;window.win=end===1;window.draw=end===3;endT=2.5;$('rzv').style.display='none'}}
 function showResult(){const win=window.win,dr=window.draw,s=ST5,e=$('rt');e.textContent=dr?'DRAW':win?'VICTORY':'DEFEAT';e.style.color=win?'#4ade80':dr?'#facc15':'#f87171';
-const sl=Math.round(s.kills*200+s.assist*60+s.dmg*.5+(win?650:dr?250:180)+(player.alive?80:0)),rp=Math.round(sl*.6),p=ACC.prof,ol=lvOf(p.xp);p.bt++;if(win)p.wn++;p.kl+=s.kills;p.dm=(p.dm||0)+s.dmg;p.sl+=sl;p.xp+=rp;saveProf();renderProf();
+const sl=Math.round(s.kills*200+(s.gk||0)*90+s.assist*60+s.dmg*.5+(win?650:dr?250:180)+(player.alive?80:0)),rp=Math.round(sl*.6),p=ACC.prof,ol=lvOf(p.xp);p.bt++;if(win)p.wn++;p.kl+=s.kills;p.dm=(p.dm||0)+s.dmg;p.sl+=sl;p.xp+=rp;saveProf();renderProf();
 $('rsc').textContent=`チケット ${TIX[faction]} - ${TIX[1-faction]}`;const r=(a,b)=>`<tr><td>${a}</td><td style="text-align:right">${b}</td></tr>`;
-$('rtab').innerHTML=`<table>${r('撃墜',s.kills)}${r('撃墜支援',s.assist)}${r('被撃墜',s.deaths)}${r('与ダメージ',Math.round(s.dmg))}${r('獲得 SL','+'+sl.toLocaleString())}${r('獲得 RP','+'+rp.toLocaleString())}</table>`;
+$('rtab').innerHTML=`<table>${r('撃墜',s.kills)}${r('地上目標撃破',s.gk||0)}${r('撃墜支援',s.assist)}${r('被撃墜',s.deaths)}${r('与ダメージ',Math.round(s.dmg))}${r('獲得 SL','+'+sl.toLocaleString())}${r('獲得 RP','+'+rp.toLocaleString())}</table>`;
 $('rlv').textContent=`ランク Lv.${lvOf(p.xp)}${lvOf(p.xp)>ol?' ⭐ランクアップ!':''}（アカウントに保存しました）`;$('rs').style.display='flex';if(document.exitPointerLock)document.exitPointerLock()}
 function goHome(){try{ON&&ON.net.leave()}catch(e){}location.reload()}
 function step(dt){mt-=dt;mt2+=dt;if(!over)tmat+=dt;if(ON)syncOn(dt);
@@ -555,10 +632,10 @@ const tl=Math.max(0,T0-tmat),my=faction;$('tkt').innerHTML=`<div class="tr"><spa
 mmc.setTransform(1,0,0,1,0,0);mmc.clearRect(0,0,150,150);mmc.fillStyle='rgba(8,24,36,.85)';mmc.beginPath();mmc.arc(75,75,75,0,6.3);mmc.fill();mmc.strokeStyle='rgba(94,200,255,.3)';mmc.beginPath();mmc.arc(75,75,50,0,6.3);mmc.arc(75,75,25,0,6.3);mmc.stroke();
 const hd=Math.atan2(pf.x,pf.z),R_=3200;planes.forEach(t=>{if(!t.alive||t.gone)return;const dx=t.pos.x-p.pos.x,dz=t.pos.z-p.pos.z,ca=Math.cos(hd),sa=Math.sin(hd),rx=dx*ca-dz*sa,rz=dx*sa+dz*ca;let X=rx/R_*75,Y=-rz/R_*75;const m=Math.hypot(X,Y);if(m>72){X*=72/m;Y*=72/m}
 mmc.fillStyle=t===p?'#4ade80':isFoe(p,t)?'#f87171':'#5ec8ff';mmc.beginPath();mmc.arc(75+X,75+Y,t===p?4:3,0,6.3);mmc.fill()});
-mmc.fillStyle='#4ade80';mmc.beginPath();mmc.moveTo(75,66);mmc.lineTo(70,80);mmc.lineTo(80,80);mmc.fill();
+gmDraw(hd,R_,p);mmc.fillStyle='#4ade80';mmc.beginPath();mmc.moveTo(75,66);mmc.lineTo(70,80);mmc.lineTo(80,80);mmc.fill();
 R.render(S,cam)}
 const rAtZ=(sp,z)=>{const P=sp.prof;if(z<=P[0][0])return P[0][1];for(let i=1;i<P.length;i++)if(z<=P[i][0]){const a=P[i-1],b=P[i],t=(z-a[0])/(b[0]-a[0]);return a[1]+(b[1]-a[1])*t}return P[P.length-1][1]};
-function loop(now){if(!run)return;requestAnimationFrame(loop);let dt=Math.min(.05,(now-last)/1000);last=now;if(PAUSE){render(.0001);return}step(dt);render(dt)}
+function loop(now){if(!run)return;requestAnimationFrame(loop);let dt=Math.min(.05,(now-last)/1000);last=now;if(PAUSE){render(.0001);return}step(dt);gwStep(dt);render(dt);gwHud(dt)}
 // ============================ 入力 ============================
 function look(dx,dy){const f=cam.fov/65*.0026*SET.sens;camYaw+=dx*f;camPitch=cl(camPitch-dy*f*(SET.inv?-1:1),-1.45,1.45)}
 const cv=$('c'),tp=new Map();
@@ -568,8 +645,8 @@ cv.addEventListener('pointermove',e=>{if(!run)return;if(e.pointerType==='mouse')
 cv.addEventListener('contextmenu',e=>e.preventDefault());
 function fireMsl(){if(!run||!player.alive)return;const p=player;if(!p.s.st.msl){msg('この機体にミサイルはありません');return}if(p.msl<=0){msg('ミサイル弾切れ');return}if(!p.lockTg||p.lockT<1.2){msg('ロックオン中… 目標を照準に捉えて');return}launchMsl(p,p.lockTg)}
 addEventListener('keydown',e=>{const t=e.target;if(t&&t.tagName==='INPUT')return;if(!run)return;
-if(e.code==='KeyW')K.up=1;else if(e.code==='KeyS')K.dn=1;else if(e.code==='Space'){K.fire=1;e.preventDefault()}else if(e.code==='KeyF')fireMsl();else if(e.code==='ShiftLeft')K.boost=1;else if(e.code==='KeyC')camMode^=1;else if(e.code==='Tab'){showSB(1);e.preventDefault()}else if(e.code==='Escape'||e.code==='KeyP')setOpen?closeSet():openSet()});
-addEventListener('keyup',e=>{if(e.code==='KeyW')K.up=0;else if(e.code==='KeyS')K.dn=0;else if(e.code==='Space')K.fire=0;else if(e.code==='ShiftLeft')K.boost=0;else if(e.code==='Tab')showSB(0)});
+if(e.code==='KeyW')K.up=1;else if(e.code==='KeyS')K.dn=1;else if(e.code==='Space'){K.fire=1;e.preventDefault()}else if(e.code==='KeyF')fireMsl();else if(e.code==='KeyB')K.bomb=1;else if(e.code==='ShiftLeft')K.boost=1;else if(e.code==='KeyC')camMode^=1;else if(e.code==='Tab'){showSB(1);e.preventDefault()}else if(e.code==='Escape'||e.code==='KeyP')setOpen?closeSet():openSet()});
+addEventListener('keyup',e=>{if(e.code==='KeyW')K.up=0;else if(e.code==='KeyS')K.dn=0;else if(e.code==='KeyB')K.bomb=0;else if(e.code==='Space')K.fire=0;else if(e.code==='ShiftLeft')K.boost=0;else if(e.code==='Tab')showSB(0)});
 {const ts=$('ts'),tk=$('tk');let id=null;const set=e=>{const r=ts.getBoundingClientRect(),v=cl(1-(e.clientY-r.top-15)/(r.height-30),0,1);IN.thr=v;tk.style.bottom='calc('+v*100+'% - '+v*tk.offsetHeight+'px)'};ts.addEventListener('pointerdown',e=>{e.preventDefault();id=e.pointerId;try{ts.setPointerCapture(id)}catch(x){}set(e)});ts.addEventListener('pointermove',e=>{if(e.pointerId===id)set(e)});ts.addEventListener('pointerup',()=>id=null);ts.addEventListener('pointercancel',()=>id=null)}
 document.querySelectorAll('[data-k]').forEach(b=>{const k=b.dataset.k,on=e=>{e.preventDefault();b.classList.add('on');K[k]=1},off=()=>{b.classList.remove('on');K[k]=0};b.addEventListener('pointerdown',on);['pointerup','pointercancel','pointerleave'].forEach(n=>b.addEventListener(n,off))});
 document.querySelectorAll('[data-a]').forEach(b=>b.addEventListener('pointerdown',e=>{e.preventDefault();({cam:()=>camMode^=1,boost:()=>{K.boost=1;setTimeout(()=>K.boost=0,200)},msl:fireMsl})[b.dataset.a]()}));
@@ -586,8 +663,8 @@ function showSB(m){sbOn=m;$('sbd').style.display=m?'flex':'none';if(m){const row
 $('sbd').innerHTML=tb('味方','#5ec8ff',planes.filter(t=>!isFoe(player,t)))+tb('敵','#f87171',planes.filter(t=>isFoe(player,t)))}}
 // ---- ホーム / 格納庫 ----
 let PV=null,pvOn=0,pvT=0;
-function pickF(f){faction=f;$('fs').style.display='none';$('vs').style.display='flex';$('vserr').textContent='';const l=$('vl');l.innerHTML='';const list=byFac(f);
-list.forEach(v=>{const b=document.createElement('button');b.className='vc';b.dataset.id=v.id;const st=v.st;b.innerHTML=`<b>${esc(v.n)}</b><small>${NATN[v.nat]||''} ・ ${v.k==='j'?'ジェット':'レシプロ'} ・ 最高速 ${Math.round(st.vmax*3.6)}km/h<br>機関砲 ${st.rof}発/s${st.msl?' ・ ミサイル'+st.msl:''}</small>`;b.onclick=()=>hang(v);l.appendChild(b)});hang(selSp&&list.find(x=>x.id===selSp.id)||list[0]);pvStart()}
+function pickF(f){faction=f;$('fs').style.display='none';$('vs').style.display='flex';$('vserr').textContent='';const l=$('vl');l.innerHTML='';const list=byFac(f,1);
+list.forEach(v=>{const b=document.createElement('button');b.className='vc';b.dataset.id=v.id;const st=v.st;b.innerHTML=`<b>${esc(v.n)}</b><small>${NATN[v.nat]||''} ・ ${v.k==='j'?'ジェット':'レシプロ'} ・ 最高速 ${Math.round(st.vmax*3.6)}km/h<br>機関砲 ${st.rof}発/s${st.msl?' ・ ミサイル'+st.msl:''}${v.bn?' ・ 爆弾'+v.bn:''}</small>`;b.onclick=()=>hang(v);l.appendChild(b)});hang(selSp&&list.find(x=>x.id===selSp.id)||list[0]);pvStart()}
 function hang(v){selSp=v;document.querySelectorAll('#vl .vc').forEach(b=>b.classList.toggle('on',b.dataset.id===v.id));const st=v.st,bar=(n,x,t)=>`<div class="sbar"><i>${n}</i><u><b style="width:${Math.round(cl(x,0,1)*100)}%"></b></u><span>${t}</span></div>`;
 $('vinfo').innerHTML=`<b style="font-size:14px">${esc(v.n)}</b>`+bar('速度',st.vmax/320,Math.round(st.vmax*3.6)+'km/h')+bar('旋回',st.rate[0]/1.3,'')+bar('ロール',st.rate[1]/4.4,'')+bar('火力',st.rof*st.dmg/450,Math.round(st.rof*st.dmg)+'/s')+bar('耐久',st.hp/125,st.hp)+bar('弾薬',st.ammo/1500,st.ammo);pvShow(v)}
 function pvInit(){if(PV)return PV;try{const c=$('pv'),r=new THREE.WebGLRenderer({canvas:c,antialias:true,alpha:true});r.setPixelRatio(Math.min(devicePixelRatio||1,2));r.setSize(420,250,false);const sc=new THREE.Scene();sc.add(new THREE.HemisphereLight(0xcfe0ff,0x554a38,1.1));const dl=new THREE.DirectionalLight(0xfff2dd,1.8);dl.position.set(-6,9,7);sc.add(dl);const d2=new THREE.DirectionalLight(0x88aaff,.6);d2.position.set(6,-3,-5);sc.add(d2);
